@@ -1,8 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Threading;
 
 public class CameraRotation : MonoBehaviour
 {
+    public GameObject HUD;
+
+    private bool HUDVisible = true;
+
     public enum RotationAxes
     {
         mouseXAndY = 0,
@@ -20,6 +25,11 @@ public class CameraRotation : MonoBehaviour
 
     private float _rotationX = 0;
 
+    bool IsHUDVisible()
+    {
+        return HUDVisible;
+    }
+
     void Start()
     {
         Rigidbody body = GetComponent<Rigidbody>();
@@ -31,28 +41,38 @@ public class CameraRotation : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (axes == RotationAxes.mouseX)
+        if (Input.GetKey(KeyCode.E))
         {
-            transform.Rotate(0, Input.GetAxis("Mouse X") * sensVert, 0);
+            HUDVisible = !HUDVisible;
+            HUD.GetComponent<HUDHandler>().ChangeStatus(HUDVisible);
+            Thread.Sleep(100);
         }
-        else if (axes == RotationAxes.mouseY)
+
+        if (!HUDVisible)
         {
-            _rotationX -= Input.GetAxis("Mouse Y") * sensVert;
-            _rotationX = Mathf.Clamp(_rotationX, minVert, maxVert);
+            if (axes == RotationAxes.mouseX)
+            {
+                transform.Rotate(0, Input.GetAxis("Mouse X") * sensVert, 0);
+            }
+            else if (axes == RotationAxes.mouseY)
+            {
+                _rotationX -= Input.GetAxis("Mouse Y") * sensVert;
+                _rotationX = Mathf.Clamp(_rotationX, minVert, maxVert);
 
-            float rotationY = transform.localEulerAngles.y;
+                float rotationY = transform.localEulerAngles.y;
 
-            transform.localEulerAngles = new Vector3(_rotationX, rotationY, 0);
-        }
-        else
-        {
-            _rotationX -= Input.GetAxis("Mouse Y") * sensVert;
-            _rotationX = Mathf.Clamp(_rotationX, minVert, maxVert);
+                transform.localEulerAngles = new Vector3(_rotationX, rotationY, 0);
+            }
+            else
+            {
+                _rotationX -= Input.GetAxis("Mouse Y") * sensVert;
+                _rotationX = Mathf.Clamp(_rotationX, minVert, maxVert);
 
-            float delta = Input.GetAxis("Mouse X") * sensHor;
-            float rotationY = transform.localEulerAngles.y + delta;
+                float delta = Input.GetAxis("Mouse X") * sensHor;
+                float rotationY = transform.localEulerAngles.y + delta;
 
-            transform.localEulerAngles = new Vector3(_rotationX, rotationY, 0);
+                transform.localEulerAngles = new Vector3(_rotationX, rotationY, 0);
+            }
         }
     }
 }

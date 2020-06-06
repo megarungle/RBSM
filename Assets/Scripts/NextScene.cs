@@ -34,4 +34,10 @@ public class NextScene : MonoBehaviour
         Debug.Log("Load SampleRing scene");
         SceneManager.LoadScene("SampleRing");
     }
+
+    public void NextEditor()
+    {
+        Debug.Log("Load RobotEditor scene");
+        SceneManager.LoadScene("RobotEditor");
+    }
 }
