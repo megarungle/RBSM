@@ -28,4 +28,10 @@ public class NextScene : MonoBehaviour
         Debug.Log("Load MainMenu scene");
         SceneManager.LoadScene("MainMenu");
     }
+
+    public void RingMovement()
+    {
+        Debug.Log("Load SampleRing scene");
+        SceneManager.LoadScene("SampleRing");
+    }
 }
