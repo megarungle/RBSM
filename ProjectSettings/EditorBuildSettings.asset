@@ -4,5 +4,23 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/MainMenu.unity
+    guid: 04d77b870193a994ea98c0d90e9009fc
+  - enabled: 1
+    path: Assets/Scenes/MatEditor.unity
+    guid: 6ac018f7c770ec5429e9d4e0df47c683
+  - enabled: 1
+    path: Assets/Scenes/RobotEditor.unity
+    guid: eb6ab7482bf55f744999b8cec57e2862
+  - enabled: 1
+    path: Assets/Scenes/Simulation.unity
+    guid: 2a0dbe6404014f147b8cb18810fc1111
+  - enabled: 1
+    path: Assets/Scenes/SelectSample.unity
+    guid: 6617d42cbb8409346bbd8425e1523691
+  - enabled: 1
+    path: Assets/Scenes/SampleRing.unity
+    guid: c8c16c6175c29bf4f8d5bef9a2fccd06
   m_configObjects: {}
