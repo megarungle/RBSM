@@ -8,6 +8,9 @@ using System.Drawing;
 public class FileManager : MonoBehaviour
 {
     private string path;
+    private Sprite sprite;
+    private int width;
+    private int height;
     public Image image;
     public GameObject panel;
 
@@ -16,12 +19,26 @@ public class FileManager : MonoBehaviour
         panel.SetActive(false);
     }
 
+    public Sprite GetSprite()
+    {
+        return sprite;
+    }
+
+    public int[] GetSizes()
+    {
+        return new int[] { width, height };
+    }
+
     void UpdateImage()
     {
         panel.SetActive(true);
 
         WWW www = new WWW("file:///" + path);
         Texture2D tmp = www.texture;
+
+        width = tmp.width;
+        height = tmp.height;
+        sprite = Sprite.Create(tmp, new Rect(0, 0, width, height), Vector2.zero);
 
         if (tmp.width > tmp.height)
         {
