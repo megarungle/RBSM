@@ -4,7 +4,7 @@ using System.Collections;
 public class CameraMove : MonoBehaviour {
 	public int speed = 10;
 
-	void Update () {
+	void FixedUpdate () {
 		speed = 10;
 		if (Input.GetKey(KeyCode.LeftShift)) {
 			speed = 3;
