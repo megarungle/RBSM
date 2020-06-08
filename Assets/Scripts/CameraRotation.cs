@@ -44,7 +44,7 @@ public class CameraRotation : MonoBehaviour
         if (Input.GetKey(KeyCode.E))
         {
             HUDVisible = !HUDVisible;
-            HUD.SetActive(HUDVisible);
+            HUD.GetComponent<HUDHandler>().ChangeStatus(HUDVisible);
             Thread.Sleep(100);
         }
 
