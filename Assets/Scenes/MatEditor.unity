@@ -1712,7 +1712,6 @@ MonoBehaviour:
   cube: {fileID: 4790795093391942214, guid: 73523f60db7f58d4d86a60792724f67a, type: 3}
   cylinder: {fileID: 688040453914377231, guid: 888895220e557b34e8b511b4b403edfe, type: 3}
   sphere: {fileID: 7138579497590837669, guid: 50b30f8a570f3f848b027cdcb3f1c7f1, type: 3}
-  obs: 0
 --- !u!1 &1058095240
 GameObject:
   m_ObjectHideFlags: 0
@@ -2118,6 +2117,11 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 4622954518279734646, guid: 9b82c44df4a530546b175c696155114e,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1462345500}
     - target: {fileID: 2946992593339402778, guid: 9b82c44df4a530546b175c696155114e,
         type: 3}
       propertyPath: m_Text
@@ -2338,6 +2342,7 @@ GameObject:
   - component: {fileID: 1462345506}
   - component: {fileID: 1462345507}
   - component: {fileID: 1462345508}
+  - component: {fileID: 1462345509}
   m_Layer: 5
   m_Name: Menu
   m_TagString: Untagged
@@ -2478,6 +2483,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mat: {fileID: 1459166156}
   leftPanel: {fileID: 1790186057}
+--- !u!114 &1462345509
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1462345500}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa8387efab9c7eb4c9cfdb6f8b000de4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cam: {fileID: 1010145496}
 --- !u!1 &1489325426
 GameObject:
   m_ObjectHideFlags: 0
@@ -2688,6 +2706,11 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 4622954518279734646, guid: 9b82c44df4a530546b175c696155114e,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1462345500}
     - target: {fileID: 2946992593339402778, guid: 9b82c44df4a530546b175c696155114e,
         type: 3}
       propertyPath: m_Text
@@ -2984,8 +3007,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1885382139}
   m_HandleRect: {fileID: 1885382138}
   m_Direction: 2
-  m_Value: 0.9999999
-  m_Size: 0.4545454
+  m_Value: 0.99999976
+  m_Size: 0.45454538
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -3586,6 +3609,11 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 4622954518279734646, guid: 9b82c44df4a530546b175c696155114e,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1462345500}
     - target: {fileID: 2946992593339402778, guid: 9b82c44df4a530546b175c696155114e,
         type: 3}
       propertyPath: m_Text

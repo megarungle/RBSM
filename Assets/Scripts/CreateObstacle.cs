@@ -28,7 +28,7 @@ public class CreateObstacle : MonoBehaviour
 
     void Start()
     {
-        canCreate = true;
+        canCreate = false;
         cam = this.GetComponent<Camera>();
     }
 
