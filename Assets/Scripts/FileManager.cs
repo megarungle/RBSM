@@ -11,12 +11,13 @@ public class FileManager : MonoBehaviour
     private Sprite sprite;
     private int width;
     private int height;
+
     public Image image;
-    public GameObject panel;
+    public GameObject previewPanel;
 
     void Start()
     {
-        panel.SetActive(false);
+        previewPanel.SetActive(false);
     }
 
     public Sprite GetSprite()
@@ -31,7 +32,7 @@ public class FileManager : MonoBehaviour
 
     void UpdateImage()
     {
-        panel.SetActive(true);
+        previewPanel.SetActive(true);
 
         WWW www = new WWW("file:///" + path);
         Texture2D tmp = www.texture;
