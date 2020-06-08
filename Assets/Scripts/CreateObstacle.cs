@@ -80,5 +80,26 @@ public class CreateObstacle : MonoBehaviour
                 }
             }
         }
+        else
+        {
+            if (Input.GetMouseButtonUp(1))
+            {
+                Vector3 mousePos = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 100.0f));
+                Vector3 direction = mousePos - cam.transform.position;
+
+                RaycastHit hit;
+
+                if (Physics.Raycast(cam.transform.position, direction, out hit, 100.0f))
+                {
+                    Debug.DrawLine(cam.transform.position, hit.point, Color.green, 0.5f);
+
+                    Destroy(hit.collider.gameObject);
+                }
+                else
+                {
+                    Debug.DrawLine(cam.transform.position, mousePos, Color.red, 0.5f);
+                }
+            }
+        }
     }
 }
