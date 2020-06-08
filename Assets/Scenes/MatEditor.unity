@@ -2482,7 +2482,7 @@ Camera:
     height: 1
   near clip plane: 0.1
   far clip plane: 1000
-  field of view: 26.991467
+  field of view: 60
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -2542,7 +2542,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2da05e1e5f0b33341a1faa98781d51cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 15
+  speed: 10
 --- !u!114 &1010145500
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3567,6 +3567,7 @@ GameObject:
   - component: {fileID: 1462345508}
   - component: {fileID: 1462345509}
   - component: {fileID: 1462345510}
+  - component: {fileID: 1462345511}
   m_Layer: 5
   m_Name: Menu
   m_TagString: Untagged
@@ -3737,6 +3738,18 @@ MonoBehaviour:
   sliderSize: {fileID: 1960008334}
   sliderRotation: {fileID: 1851027744}
   dropwdownColor: {fileID: 2110348135}
+--- !u!114 &1462345511
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1462345500}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a830c60eb6addc46ad31f6e7d052582, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1489325426
 GameObject:
   m_ObjectHideFlags: 0
