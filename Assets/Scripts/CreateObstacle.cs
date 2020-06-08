@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Microsoft.Win32.SafeHandles;
+using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
 using UnityEngine;
@@ -10,10 +11,15 @@ public class CreateObstacle : MonoBehaviour
 {
     private bool canCreate;
     private Camera cam;
+    private GameObject lastObj;
 
     public GameObject cube;
     public GameObject cylinder;
     public GameObject sphere;
+
+    public Material blue;
+    public Material red;
+    public Material white;
 
     private enum Obstacles
     {
@@ -34,6 +40,48 @@ public class CreateObstacle : MonoBehaviour
     {
         canCreate = false;
         cam = this.GetComponent<Camera>();
+    }
+
+    public void UpdateSize(float size)
+    {
+        float prevSize = lastObj.transform.localScale.y;
+
+        float x = lastObj.transform.position.x;
+        float y = lastObj.transform.position.y;
+        float z = lastObj.transform.position.z;
+
+        Bounds b = lastObj.GetComponent<MeshFilter>().sharedMesh.bounds;
+
+        lastObj.transform.position = new Vector3(x, y - (b.size.y * prevSize / 2) + (b.size.y * size / 2), z);
+        lastObj.transform.localScale = new Vector3(size, size, size);
+    }
+
+    public void UpdateRotation(float rotation)
+    {
+        float x = lastObj.transform.rotation.x;
+        float z = lastObj.transform.rotation.z;
+
+        lastObj.transform.rotation = Quaternion.Euler(new Vector3(x, rotation, z));
+    }
+
+    public void UpdateColor(int color)
+    {
+        Material m = null;
+        
+        switch (color)
+        {
+            case 0:
+                m = white;
+                break;
+            case 1:
+                m = blue;
+                break;
+            case 2:
+                m = red;
+                break;
+        }
+
+        lastObj.GetComponent<MeshRenderer>().material = m;
     }
 
     void FixedUpdate()
@@ -68,9 +116,9 @@ public class CreateObstacle : MonoBehaviour
                     Bounds b = obj.GetComponent<MeshFilter>().sharedMesh.bounds;
                     float height = b.size.y;
 
-                    Vector3 pos = new Vector3(hit.point.x, hit.point.y + height / 2, hit.point.z);
+                    Vector3 pos = new Vector3(hit.point.x, hit.point.y + (height / 2.0f), hit.point.z);
 
-                    Instantiate(obj, pos, Quaternion.Euler(Vector3.zero));
+                    lastObj = Instantiate(obj, pos, Quaternion.Euler(Vector3.zero));
 
                     canCreate = false;
                 }
