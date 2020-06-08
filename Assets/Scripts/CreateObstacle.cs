@@ -1,6 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
 using UnityEngine;
+
+using Quaternion = UnityEngine.Quaternion;
+using Vector3 = UnityEngine.Vector3;
 
 public class CreateObstacle : MonoBehaviour
 {
@@ -61,7 +65,12 @@ public class CreateObstacle : MonoBehaviour
                             break;
                     }
 
-                    Instantiate(obj, hit.point, Quaternion.Euler(Vector3.zero));
+                    Bounds b = obj.GetComponent<MeshFilter>().sharedMesh.bounds;
+                    float height = b.size.y;
+
+                    Vector3 pos = new Vector3(hit.point.x, hit.point.y + height / 2, hit.point.z);
+
+                    Instantiate(obj, pos, Quaternion.Euler(Vector3.zero));
 
                     canCreate = false;
                 }

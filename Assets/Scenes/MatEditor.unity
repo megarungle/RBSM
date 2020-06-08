@@ -2121,7 +2121,17 @@ PrefabInstance:
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1462345500}
+      objectReference: {fileID: 1462345509}
+    - target: {fileID: 4622954518279734646, guid: 9b82c44df4a530546b175c696155114e,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: SelectSphere
+      objectReference: {fileID: 0}
+    - target: {fileID: 4622954518279734646, guid: 9b82c44df4a530546b175c696155114e,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 2946992593339402778, guid: 9b82c44df4a530546b175c696155114e,
         type: 3}
       propertyPath: m_Text
@@ -2710,7 +2720,17 @@ PrefabInstance:
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1462345500}
+      objectReference: {fileID: 1462345509}
+    - target: {fileID: 4622954518279734646, guid: 9b82c44df4a530546b175c696155114e,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: SelectCylinder
+      objectReference: {fileID: 0}
+    - target: {fileID: 4622954518279734646, guid: 9b82c44df4a530546b175c696155114e,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 2946992593339402778, guid: 9b82c44df4a530546b175c696155114e,
         type: 3}
       propertyPath: m_Text
@@ -3007,8 +3027,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1885382139}
   m_HandleRect: {fileID: 1885382138}
   m_Direction: 2
-  m_Value: 0.99999976
-  m_Size: 0.45454538
+  m_Value: 0.9999999
+  m_Size: 0.4545454
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -3613,7 +3633,17 @@ PrefabInstance:
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1462345500}
+      objectReference: {fileID: 1462345509}
+    - target: {fileID: 4622954518279734646, guid: 9b82c44df4a530546b175c696155114e,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: SelectCube
+      objectReference: {fileID: 0}
+    - target: {fileID: 4622954518279734646, guid: 9b82c44df4a530546b175c696155114e,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 2946992593339402778, guid: 9b82c44df4a530546b175c696155114e,
         type: 3}
       propertyPath: m_Text
