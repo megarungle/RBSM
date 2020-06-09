@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 577539082913224080}
   - component: {fileID: 577539082913224083}
   - component: {fileID: 577539082913224082}
-  - component: {fileID: 577539082913224085}
+  - component: {fileID: 7566407103547066537}
   m_Layer: 0
-  m_Name: ColorSensor
+  m_Name: DistSensor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -58,7 +58,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 8499b05ee37128d4b9e76b3c0be6fa25, type: 2}
+  - {fileID: 2100000, guid: 59797ea62ab1ab04cb691af9e1decfbf, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -79,7 +79,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &577539082913224085
+--- !u!114 &7566407103547066537
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -88,7 +88,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 577539082913224084}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 92a0c207a53e28c45bfc10e4f910a1ca, type: 3}
+  m_Script: {fileID: 11500000, guid: 0da8b7bb2e8a2994f8546c324860d545, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resColor: {r: 0, g: 0, b: 0, a: 0}
+  dist: 0
