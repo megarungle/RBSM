@@ -1,14 +1,16 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
+
 
 public class SetupSensor : MonoBehaviour
 {
     enum Sensors {
         ColorSensor = 0,
-        OtherSensor = 1
+        DistSensor = 1
     }
 
     public GameObject ColorSensor;
-    public GameObject OtherSensor;
+    public GameObject DistSensor;
     public GameObject HUD;
     public GameObject Robot;
 
@@ -42,14 +44,13 @@ public class SetupSensor : MonoBehaviour
         changeOneSensor(idx);
     }
 
-    public void SetupOtherSensor() {    
-        int idx = (int)Sensors.OtherSensor;
+    public void SetupDistSensor() {    
+        int idx = (int)Sensors.DistSensor;
         changeOneSensor(idx);
     }
     
     void FixedUpdate() {
         int indexSensor = getActiveSensor();
-        Debug.Log(indexSensor);
         if (indexSensor != -1) {
             if (Input.GetMouseButtonDown(0)) {
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -66,15 +67,25 @@ public class SetupSensor : MonoBehaviour
                                 ColorSensor.transform.parent = Robot.transform;
                                 ColorSensor.transform.position = hit.point + hit.normal * sensorWidth / 2;
                                 if (hit.normal.y != 0) {
-                                    ColorSensor.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
+                                    ColorSensor.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
                                 } else {
                                     ColorSensor.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
                                 }
                                 break;
                             }
 
-                            case (int)Sensors.OtherSensor: {
-                                Debug.Log("Other Sensor");
+                            case (int)Sensors.DistSensor: {
+                                Debug.Log("Dist Sensor");
+                                float sensorWidth = DistSensor.transform.localScale.y;
+                                DistSensor.transform.parent = Robot.transform;
+                                DistSensor.transform.position = hit.point + hit.normal * sensorWidth / 2;
+                                if (hit.normal.y != 0) {
+                                    DistSensor.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
+                                } else {
+                                    DistSensor.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+                                }
+                                float dist = DistSensor.GetComponentInChildren<DistSensor>().dist;
+                                Debug.Log(dist);
                                 break;
                             }
 
