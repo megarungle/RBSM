@@ -75,10 +75,10 @@ public class Draw : MonoBehaviour
         var Ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
         RaycastHit hit;
-        
+
         if (Physics.Raycast(Ray, out hit)) {
             Vector2 pixelUV = hit.textureCoord;
-            pixelUV.x *= fieldTexture.width;  
+            pixelUV.x *= fieldTexture.width;
             pixelUV.y *= fieldTexture.height;
             int brushScaleX = (int)(brushSize * Field.transform.localScale.z / Field.transform.localScale.x);
             int brushScaleY = (int)(brushSize * Field.transform.localScale.x / Field.transform.localScale.z);
@@ -103,10 +103,10 @@ public class Draw : MonoBehaviour
         if (isBtnDown && firstPoint == new Vector2(-1, -1)) {
             var Ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
-            
+
             if (Physics.Raycast(Ray, out hit)) {
                 Vector2 pixelUV = hit.textureCoord;
-                pixelUV.x *= fieldTexture.width;  
+                pixelUV.x *= fieldTexture.width;
                 pixelUV.y *= fieldTexture.height;
                 firstPoint = pixelUV;
             }
@@ -114,10 +114,10 @@ public class Draw : MonoBehaviour
         } else if (!isBtnDown) {
             var Ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
-            
+
             if (Physics.Raycast(Ray, out hit)) {
                 Vector2 pixelUV = hit.textureCoord;
-                pixelUV.x *= fieldTexture.width;  
+                pixelUV.x *= fieldTexture.width;
                 pixelUV.y *= fieldTexture.height;
                 secondPoint = pixelUV;
 
@@ -162,10 +162,10 @@ public class Draw : MonoBehaviour
         if (isBtnDown && firstPoint == new Vector2(-1, -1)) {
             var Ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
-            
+
             if (Physics.Raycast(Ray, out hit)) {
                 Vector2 pixelUV = hit.textureCoord;
-                pixelUV.x *= fieldTexture.width;  
+                pixelUV.x *= fieldTexture.width;
                 pixelUV.y *= fieldTexture.height;
                 firstPoint = pixelUV;
             }
@@ -173,10 +173,10 @@ public class Draw : MonoBehaviour
         } else if (!isBtnDown) {
             var Ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
-            
+
             if (Physics.Raycast(Ray, out hit)) {
                 Vector2 pixelUV = hit.textureCoord;
-                pixelUV.x *= fieldTexture.width;  
+                pixelUV.x *= fieldTexture.width;
                 pixelUV.y *= fieldTexture.height;
                 secondPoint = pixelUV;
 
