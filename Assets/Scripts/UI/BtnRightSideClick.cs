@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BtnClick : MonoBehaviour
+public class BtnRightSideClick : MonoBehaviour
 {
     [SerializeField] private UIController controller;
 
