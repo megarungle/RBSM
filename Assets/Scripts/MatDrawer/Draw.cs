@@ -1,14 +1,14 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Globalization;
 using System.IO;
+using TMPro;
 
 
 public class Draw : MonoBehaviour
 {
-    public GameObject HUD;
     public GameObject Field;
 
 
@@ -77,6 +77,9 @@ public class Draw : MonoBehaviour
         RaycastHit hit;
 
         if (Physics.Raycast(Ray, out hit)) {
+            if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) {
+                return;
+            }
             Vector2 pixelUV = hit.textureCoord;
             pixelUV.x *= fieldTexture.width;
             pixelUV.y *= fieldTexture.height;
@@ -105,6 +108,9 @@ public class Draw : MonoBehaviour
             RaycastHit hit;
 
             if (Physics.Raycast(Ray, out hit)) {
+                if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) {
+                    return;
+                }
                 Vector2 pixelUV = hit.textureCoord;
                 pixelUV.x *= fieldTexture.width;
                 pixelUV.y *= fieldTexture.height;
@@ -116,6 +122,9 @@ public class Draw : MonoBehaviour
             RaycastHit hit;
 
             if (Physics.Raycast(Ray, out hit)) {
+                if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) {
+                    return;
+                }
                 Vector2 pixelUV = hit.textureCoord;
                 pixelUV.x *= fieldTexture.width;
                 pixelUV.y *= fieldTexture.height;
@@ -164,6 +173,9 @@ public class Draw : MonoBehaviour
             RaycastHit hit;
 
             if (Physics.Raycast(Ray, out hit)) {
+                if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) {
+                    return;
+                }
                 Vector2 pixelUV = hit.textureCoord;
                 pixelUV.x *= fieldTexture.width;
                 pixelUV.y *= fieldTexture.height;
@@ -175,6 +187,9 @@ public class Draw : MonoBehaviour
             RaycastHit hit;
 
             if (Physics.Raycast(Ray, out hit)) {
+                if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) {
+                    return;
+                }
                 Vector2 pixelUV = hit.textureCoord;
                 pixelUV.x *= fieldTexture.width;
                 pixelUV.y *= fieldTexture.height;
@@ -277,7 +292,7 @@ public class Draw : MonoBehaviour
     }
 
 
-    public void SaveField(InputField fileName) {
+    public void SaveField(TMP_InputField fileName) {
         var data = fieldTexture.EncodeToPNG();
         string fName = fileName.text == "" ? "image" : fileName.text;
         File.WriteAllBytes(Application.dataPath + "/Images/CustomFields/" + fName + ".png", data);
@@ -287,5 +302,4 @@ public class Draw : MonoBehaviour
     public void ChangeMode(Dropdown dropdown) {
         mode = dropdown.value;
     }
-
 }
