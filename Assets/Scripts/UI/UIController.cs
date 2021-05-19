@@ -22,6 +22,25 @@ public class UIController : MonoBehaviour
     */
 
     private bool IsCollapsed = false;
+    public GameObject panelFuncElems;
+    public GameObject panelBalks;
+    public GameObject panelThinBalks;
+    public GameObject panelConnectors;
+    public GameObject panelWheels;
+
+    private void HidePanels()
+    {
+        panelFuncElems.SetActive(false);
+        panelBalks.SetActive(false);
+        panelThinBalks.SetActive(false);
+        panelConnectors.SetActive(false);
+        panelWheels.SetActive(false);
+    }
+
+    private void Start()
+    {
+        HidePanels();
+    }
 
     IEnumerator ResetActiveAfterAnimation(float animationLen, GameObject btn, Animator btnAnimator, Transform transform, bool IsCollapsed)
     {
@@ -62,7 +81,6 @@ public class UIController : MonoBehaviour
         {
             case "BtnCollapse":
                 {
-                    Animation animation = gameObject.GetComponent(typeof(Animation)) as Animation;
                     Animator btnAnimator = btn.GetComponent(typeof(Animator)) as Animator;
 
                     // Return if animation did not work
@@ -70,6 +88,8 @@ public class UIController : MonoBehaviour
                     {
                         return;
                     }
+
+                    Animation animation = gameObject.GetComponent(typeof(Animation)) as Animation;
 
                     if (IsCollapsed)
                     {
@@ -82,6 +102,7 @@ public class UIController : MonoBehaviour
                     }
                     else
                     {
+                        HidePanels();
                         // Panel animation
                         animation.Play("Collapse");
                         // Unhide UI
@@ -89,6 +110,36 @@ public class UIController : MonoBehaviour
                     }
 
                     IsCollapsed = !IsCollapsed;
+                    break;
+                }
+            case "BtnFuncElems":
+                {
+                    HidePanels();
+                    panelFuncElems.SetActive(true);
+                    break;
+                }
+            case "BtnBalks":
+                {
+                    HidePanels();
+                    panelBalks.SetActive(true);
+                    break;
+                }
+            case "BtnThinBalks":
+                {
+                    HidePanels();
+                    panelThinBalks.SetActive(true);
+                    break;
+                }
+            case "BtnConnectors":
+                {
+                    HidePanels();
+                    panelConnectors.SetActive(true);
+                    break;
+                }
+            case "BtnWheels":
+                {
+                    HidePanels();
+                    panelWheels.SetActive(true);
                     break;
                 }
             default:
