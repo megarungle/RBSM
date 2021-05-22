@@ -1,16 +1,16 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Globalization;
 using System.IO;
+using System.Threading;
+using TMPro;
 
 
 public class Draw : MonoBehaviour
 {
-    public GameObject HUD;
     public GameObject Field;
-
 
     public Material fieldMaterial;
     public Texture2D fieldTexture;
@@ -18,21 +18,23 @@ public class Draw : MonoBehaviour
 
     const float defaultMatSizeX = 1f;
     const float defaultMatSizeY = 1f;
-    const int imgResolution = 1024;
+    const int imgResolution = 256;
 
 
-    public int brushSize = 25;
+    public int brushSize = 10;
     public Color currColor = Color.black;
     public int mode = 0; // Manual
-    public Vector2 firstPoint;
-    public Vector2 secondPoint;
+    private Vector2 firstPoint;
+    private Vector2 secondPoint;
+    private Texture2D savedTex;
+
 
     // Start is called before the first frame update
     void Start()
     {
         MeshRenderer renderer = Field.GetComponent<MeshRenderer>();
         fieldMaterial = renderer.material;
-        fieldTexture = new Texture2D(imgResolution, imgResolution);
+        recalcScales();
         fieldMaterial.mainTexture = fieldTexture;
 
         firstPoint = new Vector2(-1, -1);
@@ -58,6 +60,9 @@ public class Draw : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0)) {
             switch (mode) {
+                case 0: //Manual
+                    ManualDraw(false);
+                    break;
                 case 1: // Rectangle
                     RectDraw(false);
                     break;
@@ -71,12 +76,15 @@ public class Draw : MonoBehaviour
     }
 
 
-    void ManualDraw() {
+    void ManualDraw(bool isBtnDown = true) {
         var Ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
         RaycastHit hit;
 
         if (Physics.Raycast(Ray, out hit)) {
+            if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) {
+                return;
+            }
             Vector2 pixelUV = hit.textureCoord;
             pixelUV.x *= fieldTexture.width;
             pixelUV.y *= fieldTexture.height;
@@ -87,14 +95,15 @@ public class Draw : MonoBehaviour
             for (int i = 0; i < brushScaleX * brushScaleY; i++) {
                 colors[i] = currColor;
             }
-            Debug.Log(fieldTexture.width);
-            Debug.Log(pixelUV);
             if ((int)pixelUV.x >= (int)(brushScaleX / 4) && (int)pixelUV.y >= (int)(brushScaleY / 4) &&
                 (int)pixelUV.x <= fieldTexture.width - (int)(brushScaleX) &&
                 (int)pixelUV.y <= fieldTexture.height - (int)(brushScaleY)) {
                 fieldTexture.SetPixels((int)pixelUV.x, (int)pixelUV.y, brushScaleX, brushScaleY, colors);
                 fieldTexture.Apply(true);
             }
+        }
+        if (!isBtnDown) {
+            Graphics.CopyTexture(fieldTexture, savedTex);
         }
     }
 
@@ -105,17 +114,24 @@ public class Draw : MonoBehaviour
             RaycastHit hit;
 
             if (Physics.Raycast(Ray, out hit)) {
+                if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) {
+                    return;
+                }
                 Vector2 pixelUV = hit.textureCoord;
                 pixelUV.x *= fieldTexture.width;
                 pixelUV.y *= fieldTexture.height;
                 firstPoint = pixelUV;
             }
             return;
-        } else if (!isBtnDown) {
+        } else if (firstPoint != new Vector2(-1, -1)) {
+            Graphics.CopyTexture(fieldTexture, savedTex);
             var Ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
             if (Physics.Raycast(Ray, out hit)) {
+                if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) {
+                    return;
+                }
                 Vector2 pixelUV = hit.textureCoord;
                 pixelUV.x *= fieldTexture.width;
                 pixelUV.y *= fieldTexture.height;
@@ -134,26 +150,31 @@ public class Draw : MonoBehaviour
 
                 for (int i = 0; i <= System.Math.Abs((int)(deltaX / brushScaleX)); i++) {
                     int d = deltaX <= 0 ? -i : i;
-                    fieldTexture.SetPixels((int)(firstPoint.x + d * brushScaleX), (int)firstPoint.y, brushScaleX, brushScaleY, colors);
-                    fieldTexture.SetPixels((int)(secondPoint.x - d * brushScaleX), (int)secondPoint.y, brushScaleX, brushScaleY, colors);
+                    savedTex.SetPixels((int)(firstPoint.x + d * brushScaleX), (int)firstPoint.y, brushScaleX, brushScaleY, colors);
+                    savedTex.SetPixels((int)(secondPoint.x - d * brushScaleX), (int)secondPoint.y, brushScaleX, brushScaleY, colors);
                 }
 
                 for (int i = 0; i <= System.Math.Abs((int)(deltaY / brushScaleY)); i++) {
                     int d = deltaY <= 0 ? -i : i;
-                    fieldTexture.SetPixels((int)firstPoint.x, (int)(firstPoint.y + d * brushScaleY), brushScaleX, brushScaleY, colors);
-                    fieldTexture.SetPixels((int)secondPoint.x, (int)(secondPoint.y - d * brushScaleY), brushScaleX, brushScaleY, colors);
+                    savedTex.SetPixels((int)firstPoint.x, (int)(firstPoint.y + d * brushScaleY), brushScaleX, brushScaleY, colors);
+                    savedTex.SetPixels((int)secondPoint.x, (int)(secondPoint.y - d * brushScaleY), brushScaleX, brushScaleY, colors);
                 }
 
-                fieldTexture.SetPixels((int)firstPoint.x, (int)firstPoint.y, brushScaleX, brushScaleY, colors);
-                fieldTexture.SetPixels((int)secondPoint.x, (int)secondPoint.y, brushScaleX, brushScaleY, colors);
-                fieldTexture.SetPixels((int)(firstPoint.x + deltaX), (int)firstPoint.y, brushScaleX, brushScaleY, colors);
-                fieldTexture.SetPixels((int)firstPoint.x, (int)(firstPoint.y + deltaY), brushScaleX, brushScaleY, colors);
+                savedTex.SetPixels((int)firstPoint.x, (int)firstPoint.y, brushScaleX, brushScaleY, colors);
+                savedTex.SetPixels((int)secondPoint.x, (int)secondPoint.y, brushScaleX, brushScaleY, colors);
+                savedTex.SetPixels((int)(firstPoint.x + deltaX), (int)firstPoint.y, brushScaleX, brushScaleY, colors);
+                savedTex.SetPixels((int)firstPoint.x, (int)(firstPoint.y + deltaY), brushScaleX, brushScaleY, colors);
 
-                fieldTexture.Apply(true);
-
-                firstPoint = new Vector2(-1, -1);
-                secondPoint = new Vector2(-1, -1);
+                savedTex.Apply();
+                fieldMaterial.mainTexture = savedTex;
             }
+        }
+
+        if (!isBtnDown) {
+            firstPoint = new Vector2(-1, -1);
+            secondPoint = new Vector2(-1, -1);
+            Graphics.CopyTexture(savedTex, fieldTexture);
+            fieldMaterial.mainTexture = fieldTexture;
         }
     }
 
@@ -164,17 +185,24 @@ public class Draw : MonoBehaviour
             RaycastHit hit;
 
             if (Physics.Raycast(Ray, out hit)) {
+                if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) {
+                    return;
+                }
                 Vector2 pixelUV = hit.textureCoord;
                 pixelUV.x *= fieldTexture.width;
                 pixelUV.y *= fieldTexture.height;
                 firstPoint = pixelUV;
             }
             return;
-        } else if (!isBtnDown) {
+        } else if (firstPoint != new Vector2(-1, -1)) {
+            Graphics.CopyTexture(fieldTexture, savedTex);
             var Ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
             if (Physics.Raycast(Ray, out hit)) {
+                if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) {
+                    return;
+                }
                 Vector2 pixelUV = hit.textureCoord;
                 pixelUV.x *= fieldTexture.width;
                 pixelUV.y *= fieldTexture.height;
@@ -199,22 +227,43 @@ public class Draw : MonoBehaviour
                 for (int i = 0; i < (segments + 1); i++) {
                     float x = Mathf.Sin (Mathf.Deg2Rad * angle) * xRadius;
                     float y = Mathf.Cos (Mathf.Deg2Rad * angle) * yRadius;
-                    fieldTexture.SetPixels((int)(x + firstPoint.x + deltaX / 2), (int)(y + firstPoint.y + deltaY / 2), brushScaleX, brushScaleY, colors);
+                    savedTex.SetPixels((int)(x + firstPoint.x + deltaX / 2), (int)(y + firstPoint.y + deltaY / 2), brushScaleX, brushScaleY, colors);
                     angle += (360f / segments);
                 }
 
-                fieldTexture.Apply(true);
-                firstPoint = new Vector2(-1, -1);
-                secondPoint = new Vector2(-1, -1);
+                savedTex.Apply(true);
+                fieldMaterial.mainTexture = savedTex;
             }
+        }
+
+        if (!isBtnDown) {
+            firstPoint = new Vector2(-1, -1);
+            secondPoint = new Vector2(-1, -1);
+            Graphics.CopyTexture(savedTex, fieldTexture);
+            fieldMaterial.mainTexture = fieldTexture;
         }
     }
 
 
-    public void recalcScales() {
-        fieldTexture = new Texture2D((int)(imgResolution * Field.transform.localScale.z), (int)(imgResolution * Field.transform.localScale.x));
+
+    IEnumerator SetTextureWhite() {
+        yield return new WaitForEndOfFrame();
+        fieldTexture = new Texture2D((int)(imgResolution * Field.transform.localScale.z), (int)(imgResolution * Field.transform.localScale.x), TextureFormat.RGB24, false);
+        savedTex = new Texture2D (fieldTexture.width, fieldTexture.height, TextureFormat.RGB24, false);
+        Color[] colors = new Color[fieldTexture.width * fieldTexture.height];
+        for (int i = 0; i < fieldTexture.width * fieldTexture.height; i++) {
+            colors[i] = Color.white;
+        }
+        fieldTexture.SetPixels(0, 0, fieldTexture.width, fieldTexture.height, colors);
+        fieldTexture.Apply();
         fieldMaterial.mainTexture = fieldTexture;
     }
+
+
+    public void recalcScales() {
+        StartCoroutine(SetTextureWhite());
+    }
+
 
     // UI handlers
     public void ChangeMatSizeX(string newXSize) {
@@ -277,7 +326,7 @@ public class Draw : MonoBehaviour
     }
 
 
-    public void SaveField(InputField fileName) {
+    public void SaveField(TMP_InputField fileName) {
         var data = fieldTexture.EncodeToPNG();
         string fName = fileName.text == "" ? "image" : fileName.text;
         File.WriteAllBytes(Application.dataPath + "/Images/CustomFields/" + fName + ".png", data);
@@ -287,5 +336,4 @@ public class Draw : MonoBehaviour
     public void ChangeMode(Dropdown dropdown) {
         mode = dropdown.value;
     }
-
 }
