@@ -52,6 +52,12 @@ public class UIControllerMat : MonoBehaviour
             return;
         }
 
+        // Restrict for double clicking while collapsing
+        if (btnAnimator.GetCurrentAnimatorStateInfo(0).IsName("Highlighted") && IsCollapsed)
+        {
+            return;
+        }
+
         Animation animation = gameObject.GetComponent(typeof(Animation)) as Animation;
 
         if (IsCollapsed)
