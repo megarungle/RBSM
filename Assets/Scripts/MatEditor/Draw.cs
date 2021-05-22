@@ -11,17 +11,16 @@ public class Draw : MonoBehaviour
 {
     public GameObject Field;
 
-
     public Material fieldMaterial;
     public Texture2D fieldTexture;
 
 
     const float defaultMatSizeX = 1f;
     const float defaultMatSizeY = 1f;
-    const int imgResolution = 1024;
+    const int imgResolution = 256;
 
 
-    public int brushSize = 25;
+    public int brushSize = 10;
     public Color currColor = Color.black;
     public int mode = 0; // Manual
     public Vector2 firstPoint;
@@ -32,7 +31,7 @@ public class Draw : MonoBehaviour
     {
         MeshRenderer renderer = Field.GetComponent<MeshRenderer>();
         fieldMaterial = renderer.material;
-        fieldTexture = new Texture2D(imgResolution, imgResolution);
+        recalcScales();
         fieldMaterial.mainTexture = fieldTexture;
 
         firstPoint = new Vector2(-1, -1);
@@ -90,8 +89,6 @@ public class Draw : MonoBehaviour
             for (int i = 0; i < brushScaleX * brushScaleY; i++) {
                 colors[i] = currColor;
             }
-            Debug.Log(fieldTexture.width);
-            Debug.Log(pixelUV);
             if ((int)pixelUV.x >= (int)(brushScaleX / 4) && (int)pixelUV.y >= (int)(brushScaleY / 4) &&
                 (int)pixelUV.x <= fieldTexture.width - (int)(brushScaleX) &&
                 (int)pixelUV.y <= fieldTexture.height - (int)(brushScaleY)) {
@@ -158,7 +155,7 @@ public class Draw : MonoBehaviour
                 fieldTexture.SetPixels((int)(firstPoint.x + deltaX), (int)firstPoint.y, brushScaleX, brushScaleY, colors);
                 fieldTexture.SetPixels((int)firstPoint.x, (int)(firstPoint.y + deltaY), brushScaleX, brushScaleY, colors);
 
-                fieldTexture.Apply(true);
+                fieldTexture.Apply();
 
                 firstPoint = new Vector2(-1, -1);
                 secondPoint = new Vector2(-1, -1);
@@ -228,6 +225,12 @@ public class Draw : MonoBehaviour
 
     public void recalcScales() {
         fieldTexture = new Texture2D((int)(imgResolution * Field.transform.localScale.z), (int)(imgResolution * Field.transform.localScale.x));
+        Color[] colors = new Color[fieldTexture.width * fieldTexture.height];
+        for (int i = 0; i < fieldTexture.width * fieldTexture.height; i++) {
+            colors[i] = Color.white;
+        }
+        fieldTexture.SetPixels(0, 0, fieldTexture.width, fieldTexture.height, colors);
+        fieldTexture.Apply();
         fieldMaterial.mainTexture = fieldTexture;
     }
 

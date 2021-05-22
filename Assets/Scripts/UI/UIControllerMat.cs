@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.IO;
 using System.Threading;
 
-public class UIControllerDrawer : MonoBehaviour
+public class UIControllerMat : MonoBehaviour
 {
     /*
     // For mouse click imitation
@@ -22,16 +22,10 @@ public class UIControllerDrawer : MonoBehaviour
     */
 
     private bool IsCollapsed = false;
-    public GameObject panelEditor;
 
-    private void HidePanels()
-    {
-        panelEditor.SetActive(true);
-    }
 
     private void Start()
     {
-        HidePanels();
     }
 
     IEnumerator ResetActiveAfterAnimation(float animationLen, GameObject btn, Animator btnAnimator, Transform transform, bool IsCollapsed)
@@ -71,7 +65,6 @@ public class UIControllerDrawer : MonoBehaviour
         }
         else
         {
-            HidePanels();
             // Panel animation
             animation.Play("Collapse");
             // Unhide UI

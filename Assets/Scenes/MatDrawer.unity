@@ -1715,7 +1715,7 @@ MonoBehaviour:
   Field: {fileID: 826582384}
   fieldMaterial: {fileID: 0}
   fieldTexture: {fileID: 0}
-  brushSize: 25
+  brushSize: 10
   currColor: {r: 0, g: 0, b: 0, a: 1}
   mode: 0
   firstPoint: {x: 0, y: 0}
@@ -3830,10 +3830,10 @@ MonoBehaviour:
   m_FillRect: {fileID: 936993143}
   m_HandleRect: {fileID: 601613401}
   m_Direction: 0
-  m_MinValue: 25
-  m_MaxValue: 100
+  m_MinValue: 10
+  m_MaxValue: 50
   m_WholeNumbers: 1
-  m_Value: 25
+  m_Value: 10
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
@@ -7283,7 +7283,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 4803983741252619500}
-        m_MethodName: DrawerClick
+        m_MethodName: MatClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -7306,7 +7306,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   controller: {fileID: 0}
-  controllerDrawer: {fileID: 4803983742225181943}
+  controllerMat: {fileID: 4803983742225181943}
 --- !u!222 &4803983741252619501
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -7678,7 +7678,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0eafb59fc3a3245498874f31491b6924, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  panelEditor: {fileID: 4803983741539689687}
 --- !u!111 &4803983742225181949
 Animation:
   m_ObjectHideFlags: 0

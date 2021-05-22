@@ -5,15 +5,15 @@ using UnityEngine;
 public class BtnRightSideClick : MonoBehaviour
 {
     [SerializeField] private UIController controller;
-    [SerializeField] private UIControllerDrawer controllerDrawer;
+    [SerializeField] private UIControllerMat controllerMat;
 
     public void Click()
     {
         controller.BtnClick(gameObject);
     }
 
-    public void DrawerClick()
+    public void MatClick()
     {
-        controllerDrawer.BtnClick(gameObject);
+        controllerMat.BtnClick(gameObject);
     }
 }
