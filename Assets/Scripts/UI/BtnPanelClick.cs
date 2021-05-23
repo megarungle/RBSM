@@ -8,6 +8,9 @@ public class BtnPanelClick : MonoBehaviour
 
     public void Click()
     {
-        builder.SetObjectName(gameObject.name);
+        string parentName = transform.parent.name; // Get the parent name to establish the category
+        parentName = parentName.Replace("Panel", string.Empty);
+
+        builder.SetNames(gameObject.name, parentName);
     }
 }
