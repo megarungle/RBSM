@@ -15,9 +15,8 @@ public class FileManager : MonoBehaviour
     public Texture2D GetTexture()
     {
         string path = EditorUtility.OpenFilePanel("Overwrite with png", "", "png");
-        Texture2D tex = new Texture2D(1, 1);
-        if (path != null)
-        {
+        Texture2D tex = new Texture2D(0, 0);
+        if (path != null) {
             WWW www = new WWW("file:///" + path);
             tex = www.texture;
         }
