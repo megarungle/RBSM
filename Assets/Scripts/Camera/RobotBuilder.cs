@@ -14,11 +14,10 @@ public class RobotBuilder : MonoBehaviour
     private string       category;
     private GameObject   newObject;
     private Vector3      hitEuler;
-    private Rigidbody    rg;
     private MeshRenderer mr;
     private bool         canLift;
-    private bool         canRotate;
-    private Vector3      connectorPos;
+    private bool         canMove;
+    private Vector3      objectPos;
     private string       path;
 
     // Raycasting var
@@ -40,12 +39,6 @@ public class RobotBuilder : MonoBehaviour
         if (newObject != null)
         {
             newObject.transform.SetParent(robot.transform); // Attach created object to robot
-            
-            rg = newObject.GetComponent(typeof(Rigidbody)) as Rigidbody;
-            if (rg != null)
-            {
-                Destroy(rg);
-            }
         }
 
         objectName = null;
@@ -54,12 +47,23 @@ public class RobotBuilder : MonoBehaviour
 
         newObject = null;
         hitEuler = Vector3.one;
-        rg = null;
         mr = null;
-        connectorPos = Vector3.zero;
+        objectPos = Vector3.zero;
 
         canLift = true;
-        canRotate = true;
+        canMove = true;
+    }
+
+    // Round vector to chunk (0.1, 0.1, 0.1)
+    private Vector3 RoundVector(Vector3 vec)
+    {
+        for (int i = 0; i < 3; ++i)
+        {
+            int tmp = (int)Mathf.Round(vec[i] * 10.0f);
+            vec[i] = (float)tmp / 10.0f;
+        }
+
+        return vec;
     }
 
     void Start()
@@ -73,36 +77,25 @@ public class RobotBuilder : MonoBehaviour
         lockAxis.Add("(0.0, 0.0, 0.0)", new Vector3(-1, 0, 0));
         lockAxis.Add("(0.0, 180.0, 0.0)", new Vector3(1, 0, 0));
         lockAxis.Add("(0.0, 0.0, 270.0)", new Vector3(0, 1, 0));
-        lockAxis.Add("(0.0, 0.0, 90.0)", new Vector3());
 
+        lockAxis.Add("(0.0, 0.0, 90.0)", new Vector3(0, -1, 0));
+        //
         lockAxis.Add("(0.0, 180.0, 270.0)", new Vector3(0, 1, 0));
 
         startOffset.Add("(0.0, 0.0, 0.0)", new Vector2(1, 0));
         startOffset.Add("(0.0, 180.0, 0.0)", new Vector2(-1, 0));
         startOffset.Add("(0.0, 0.0, 270.0)", new Vector2(0, -1));
-        startOffset.Add("(0.0, 0.0, 90.0)", new Vector2());
 
+        startOffset.Add("(0.0, 0.0, 90.0)", new Vector2(0, 1));
+        //
         startOffset.Add("(0.0, 180.0, 270.0)", new Vector2(0, -1));
 
         reversed.Add("(0.0, 0.0, 0.0)", new Vector3(0, 180, 0));
         reversed.Add("(0.0, 180.0, 0.0)", new Vector3(0, 0, 0));
         reversed.Add("(0.0, 0.0, 270.0)", new Vector3(0, 0, 90));
         reversed.Add("(0.0, 0.0, 90.0)", new Vector3(0, 0, 270));
-
+        //
         reversed.Add("(0.0, 180.0, 270.0)", new Vector3(0, 0, 90));
-    }
-
-    IEnumerator StopMoving(Rigidbody rg)
-    {
-        yield return new WaitForSeconds(0.01f);
-        rg.velocity = Vector3.zero;
-    }
-
-    IEnumerator PauseRotation()
-    {
-        canRotate = false;
-        yield return new WaitForSeconds(0.2f);
-        canRotate = true;
     }
 
     void LiftObject()
@@ -112,17 +105,17 @@ public class RobotBuilder : MonoBehaviour
             if (Input.GetKey(KeyCode.W)) // Up
             {
                 Vector3 pos = new Vector3(robot.transform.position.x, Mathf.Clamp(robot.transform.position.y + 0.1f, -Mathf.Infinity, 15.0f), robot.transform.position.z);
-                robot.transform.position = pos;
+                robot.transform.position = RoundVector(pos);
             }
             else if (Input.GetKey(KeyCode.S)) // Down
             {
                 Vector3 pos = new Vector3(robot.transform.position.x, Mathf.Clamp(robot.transform.position.y - 0.1f, 5.2f, Mathf.Infinity), robot.transform.position.z);
-                robot.transform.position = pos;
+                robot.transform.position = RoundVector(pos);
             }
         }
     }
 
-    void FixedUpdate()
+    void Update()
     {
         LiftObject();
 
@@ -134,120 +127,149 @@ public class RobotBuilder : MonoBehaviour
 
             RaycastHit hit;
 
-            if (category != "Connectors")
+            switch (category)
             {
-                int layerMask = 1 << 8; // Workspace layer
-
-                if (Input.GetMouseButtonUp(0) && newObject == null) // LMB to spawn object
-                {
-                    if (Physics.Raycast(cam.transform.position, direction, out hit, 100.0f, layerMask))
+                case "FuncElems":
+                case "Balks":
                     {
-                        if (EventSystem.current.IsPointerOverGameObject()) // Ignore button click if mouse is on UI
+                        int layerMask = 1 << 8; // Workspace layer
+
+                        if (Input.GetMouseButtonUp(0) && newObject == null) // LMB to spawn the new object
                         {
+                            if (Physics.Raycast(cam.transform.position, direction, out hit, 100.0f, layerMask))
+                            {
+                                if (EventSystem.current.IsPointerOverGameObject()) // Ignore button click if mouse is on UI
+                                {
+                                    return;
+                                }
+
+                                Debug.DrawLine(cam.transform.position, hit.point, Color.green, 0.5f);
+
+                                newObject = Instantiate(Resources.Load(path), new Vector3(-500, -500, -500), Quaternion.Euler(Vector3.zero)) as GameObject;
+
+                                mr = newObject.GetComponent(typeof(MeshRenderer)) as MeshRenderer;
+
+                                if (mr == null) // If object has empty parent
+                                {
+                                    mr = newObject.transform.GetChild(0).GetComponent(typeof(MeshRenderer)) as MeshRenderer;
+                                }
+
+                                //Debug.Log("Distance to bottom: " + Vector3.Distance(mr.bounds.center, new Vector3(mr.bounds.center.x, mr.bounds.center.y - mr.bounds.)));
+
+                                canLift = false; // Block lifting the robot
+                            }
+                            else
+                            {
+                                Debug.DrawLine(cam.transform.position, mousePos, Color.red, 0.5f);
+                            }
+                        }
+                        else if (Input.GetMouseButtonUp(0) && newObject != null) // LBM to place spawned object
+                        {
+                            ResetWorkspace();
                             return;
                         }
-
-                        Debug.DrawLine(cam.transform.position, hit.point, Color.green, 0.5f);
-
-                        Vector3 pos = new Vector3(hit.point.x, hit.point.y, hit.point.z);
-                        newObject = Instantiate(Resources.Load(path), pos, Quaternion.Euler(Vector3.zero)) as GameObject;
-
-                        canLift = false; // Block lifting the robot
-                    }
-                    else
-                    {
-                        Debug.DrawLine(cam.transform.position, mousePos, Color.red, 0.5f);
-                    }
-                }
-                else if (Input.GetMouseButtonUp(0) && newObject != null) // LBM to place spawned object
-                {
-                    ResetWorkspace();
-                    return;
-                }
-                else if (newObject != null) // Placing the spawned object
-                {
-                    if (Physics.Raycast(cam.transform.position, direction, out hit, 100.0f, layerMask))
-                    {
-                        Vector3 pos = new Vector3(hit.point.x, hit.point.y, hit.point.z);
-                        newObject.transform.position = pos;
-                    }
-                    else
-                    {
-                        Debug.DrawLine(cam.transform.position, mousePos, Color.red, 0.5f);
-                    }
-                }
-            }
-            else // category == Connectors
-            {
-                if (Input.GetMouseButtonUp(0) && newObject == null) // LMB to spawn object
-                {
-                    int layerMask = 1 << 9; // Groove layer
-
-                    if (Physics.Raycast(cam.transform.position, direction, out hit, 100.0f, layerMask))
-                    {
-                        if (EventSystem.current.IsPointerOverGameObject()) // Ignore button click if mouse is on UI
+                        else if (newObject != null) // Placing the spawned object
                         {
+                            if (Physics.Raycast(cam.transform.position, direction, out hit, 100.0f, layerMask))
+                            {
+                                objectPos = new Vector3(hit.point.x, hit.point.y, hit.point.z);
+                                objectPos.y = objectPos.y + mr.bounds.size.y / 2;
+                                newObject.transform.position = RoundVector(objectPos);
+                            }
+                            else
+                            {
+                                Debug.DrawLine(cam.transform.position, mousePos, Color.red, 0.5f);
+                            }
+                        }
+
+                        break;
+                    }
+                case "Connectors":
+                    {
+                        if (Input.GetMouseButtonUp(0) && newObject == null) // LMB to spawn the new object
+                        {
+                            int layerMask = 1 << 9; // Groove layer
+
+                            if (Physics.Raycast(cam.transform.position, direction, out hit, 100.0f, layerMask))
+                            {
+                                if (EventSystem.current.IsPointerOverGameObject()) // Ignore button click if mouse is on UI
+                                {
+                                    return;
+                                }
+
+                                Debug.DrawLine(cam.transform.position, hit.point, Color.green, 0.5f);
+
+                                hitEuler = hit.transform.parent.rotation.eulerAngles;
+                                Debug.Log(hitEuler);
+
+                                newObject = Instantiate(Resources.Load(path), new Vector3(-500, -500, -500), Quaternion.Euler(hitEuler)) as GameObject;
+
+                                mr = newObject.GetComponent(typeof(MeshRenderer)) as MeshRenderer;
+
+                                objectPos = hit.transform.position;
+                                objectPos.x = objectPos.x + startOffset[hitEuler.ToString()].x * (mr.bounds.size.x + 0.2f);
+                                objectPos.y = objectPos.y + startOffset[hitEuler.ToString()].y * (mr.bounds.size.y + 0.2f);
+
+                                newObject.transform.position = RoundVector(objectPos);
+
+                                canLift = false; // Block lifting the robot
+                            }
+                            else
+                            {
+                                Debug.DrawLine(cam.transform.position, mousePos, Color.red, 0.5f);
+                            }
+                        }
+                        else if (Input.GetMouseButtonUp(0) && newObject != null) // LBM to place spawned object
+                        {
+                            ResetWorkspace();
                             return;
                         }
-
-                        Debug.DrawLine(cam.transform.position, hit.point, Color.green, 0.5f);
-
-                        hitEuler = hit.transform.parent.rotation.eulerAngles;
-                        Debug.Log(hitEuler);
-
-                        newObject = Instantiate(Resources.Load(path), new Vector3(-500, -500, -500), Quaternion.Euler(hitEuler)) as GameObject;
-
-                        mr = newObject.GetComponent(typeof(MeshRenderer)) as MeshRenderer;
-
-                        connectorPos = hit.transform.position;
-                        connectorPos.x = connectorPos.x + startOffset[hitEuler.ToString()].x * (mr.bounds.size.x + 0.1f);
-                        connectorPos.y = connectorPos.y + startOffset[hitEuler.ToString()].y * (mr.bounds.size.y + 0.1f);
-
-                        newObject.transform.position = connectorPos;
-
-                        rg = newObject.GetComponent(typeof(Rigidbody)) as Rigidbody;
-                        rg.freezeRotation = true;
-
-                        canLift = false; // Block lifting the robot
-                    }
-                    else
-                    {
-                        Debug.DrawLine(cam.transform.position, mousePos, Color.red, 0.5f);
-                    }
-                }
-                else if (Input.GetMouseButtonUp(0) && newObject != null) // LBM to place spawned object
-                {
-                    rg.constraints = RigidbodyConstraints.FreezeAll; // Freeze the object
-                    ResetWorkspace();
-                    return;
-                }
-                else if (newObject != null) // Placing the spawned object
-                {
-                    if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.RightArrow))
-                    {
-                        rg.velocity = lockAxis[hitEuler.ToString()].normalized;
-                        StartCoroutine(StopMoving(rg));
-                    }
-                    else if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.LeftArrow))
-                    {
-                        rg.velocity = -lockAxis[hitEuler.ToString()].normalized;
-                        StartCoroutine(StopMoving(rg));
-                    }
-                    else if (Input.GetKey(KeyCode.R))
-                    {
-                        if (canRotate)
+                        else if (newObject != null) // Placing the spawned object
                         {
-                            Vector3 tmpEuler = newObject.transform.rotation.eulerAngles;
-                            Destroy(newObject);
-                            newObject = Instantiate(Resources.Load(path), connectorPos, Quaternion.Euler(reversed[tmpEuler.ToString()])) as GameObject;
-
-                            rg = newObject.GetComponent(typeof(Rigidbody)) as Rigidbody;
-                            rg.freezeRotation = true;
-
-                            StartCoroutine(PauseRotation());
+                            if (canMove)
+                            {
+                                if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.RightArrow))
+                                {
+                                    Vector3 newPos = new Vector3(
+                                        newObject.transform.position.x + 0.1f * lockAxis[hitEuler.ToString()].x,
+                                        newObject.transform.position.y + 0.1f * lockAxis[hitEuler.ToString()].y,
+                                        newObject.transform.position.z + 0.1f * lockAxis[hitEuler.ToString()].z
+                                        );
+                                    newObject.transform.position = RoundVector(newPos);
+                                    canMove = false;
+                                }
+                                else if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.LeftArrow))
+                                {
+                                    Vector3 newPos = new Vector3(
+                                        newObject.transform.position.x - 0.1f * lockAxis[hitEuler.ToString()].x,
+                                        newObject.transform.position.y - 0.1f * lockAxis[hitEuler.ToString()].y,
+                                        newObject.transform.position.z - 0.1f * lockAxis[hitEuler.ToString()].z
+                                        );
+                                    newObject.transform.position = RoundVector(newPos);
+                                    canMove = false;
+                                }
+                                else if (Input.GetKey(KeyCode.R))
+                                {
+                                    Vector3 tmpEuler = newObject.transform.rotation.eulerAngles;
+                                    Debug.Log(tmpEuler);
+                                    Destroy(newObject);
+                                    newObject = Instantiate(Resources.Load(path), RoundVector(objectPos), Quaternion.Euler(reversed[tmpEuler.ToString()])) as GameObject;
+                                    canMove = false;
+                                }
+                            }
+                   
+                            if (Input.GetKeyUp(KeyCode.UpArrow)   || Input.GetKeyUp(KeyCode.DownArrow)  ||
+                                Input.GetKeyUp(KeyCode.LeftArrow) || Input.GetKeyUp(KeyCode.RightArrow) ||
+                                Input.GetKeyUp(KeyCode.R) )
+                            {
+                                canMove = true;
+                            }
                         }
+
+                        break;
                     }
-                }
+                default:
+                    break;
             }
         }
     }
