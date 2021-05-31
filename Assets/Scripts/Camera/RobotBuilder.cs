@@ -19,6 +19,7 @@ public class RobotBuilder : MonoBehaviour
     private bool         canInputKeys;
     private Vector3      objectPos;
     private string       path;
+    private float        speed;
 
     // Raycasting var
     private Camera cam;
@@ -53,18 +54,29 @@ public class RobotBuilder : MonoBehaviour
         hitEuler = Vector3.one;
         mr = null;
         objectPos = Vector3.zero;
+        speed = 0.1f;
 
         canLift = true;
         canInputKeys = true;
     }
 
-    // Round vector to chunk (0.1, 0.1, 0.1)
+    // Round vector to chunk (0.02, 0.02, 0.02)
     private Vector3 RoundVector(Vector3 vec)
     {
         for (int i = 0; i < 3; ++i)
         {
-            int tmp = (int)Mathf.Round(vec[i] * 10.0f);
-            vec[i] = (float)tmp / 10.0f;
+            vec[i] = Mathf.Round(vec[i] * 100 * 2) / (100 * 2);
+        }
+
+        return vec;
+    }
+
+    // Round vector to chunk (0.1, 0.1, 0.1)
+    private Vector3 RoundVectorInit(Vector3 vec)
+    {
+        for (int i = 0; i < 3; ++i)
+        {
+            vec[i] = (float)Math.Round(vec[i], 1, MidpointRounding.AwayFromZero);
         }
 
         return vec;
@@ -75,6 +87,7 @@ public class RobotBuilder : MonoBehaviour
         ResetWorkspace();
 
         canLift = false; // Block lifting the empty object
+        speed   = 0.1f;
 
         cam = gameObject.GetComponent<Camera>();
 
@@ -250,6 +263,16 @@ public class RobotBuilder : MonoBehaviour
 
     void Update()
     {
+        if (canInputKeys && Input.GetKey(KeyCode.RightShift))
+        {
+            speed = 0.12f - speed;
+            canInputKeys = false;
+        }
+        if (Input.GetKeyUp(KeyCode.RightShift))
+        {
+            canInputKeys = true;
+        }
+
         LiftObject();
 
         // objectName == null if the element was not selected on the left panel (UI)
@@ -289,8 +312,6 @@ public class RobotBuilder : MonoBehaviour
                                         mr = newObject.transform.GetChild(0).GetComponent(typeof(MeshRenderer)) as MeshRenderer;
                                     }
 
-                                    //Debug.Log("Distance to bottom: " + Vector3.Distance(mr.bounds.center, new Vector3(mr.bounds.center.x, mr.bounds.center.y - mr.bounds.)));
-
                                     canLift = false; // Block lifting the robot
                                 }
                                 else
@@ -310,7 +331,7 @@ public class RobotBuilder : MonoBehaviour
                                 {
                                     objectPos = new Vector3(hit.point.x, hit.point.y, hit.point.z);
                                     objectPos.y = objectPos.y + mr.bounds.size.y / 2;
-                                    newObject.transform.position = RoundVector(objectPos);
+                                    newObject.transform.position = RoundVectorInit(objectPos);
                                 }
                                 else
                                 {
@@ -372,11 +393,11 @@ public class RobotBuilder : MonoBehaviour
                                     mr = newObject.GetComponent(typeof(MeshRenderer)) as MeshRenderer;
 
                                     objectPos = hit.transform.position;
-                                    objectPos.x = objectPos.x + startOffset[hitEuler.ToString()].x * (mr.bounds.size.x + 0.4f);
-                                    objectPos.y = objectPos.y + startOffset[hitEuler.ToString()].y * (mr.bounds.size.y + 0.4f);
-                                    objectPos.z = objectPos.z + startOffset[hitEuler.ToString()].z * (mr.bounds.size.z + 0.4f);
+                                    objectPos.x = objectPos.x + startOffset[hitEuler.ToString()].x * (mr.bounds.size.x + 0.3f);
+                                    objectPos.y = objectPos.y + startOffset[hitEuler.ToString()].y * (mr.bounds.size.y + 0.3f);
+                                    objectPos.z = objectPos.z + startOffset[hitEuler.ToString()].z * (mr.bounds.size.z + 0.3f);
 
-                                    newObject.transform.position = RoundVector(objectPos);
+                                    newObject.transform.position = RoundVectorInit(objectPos);
 
                                     canLift = false; // Block lifting the robot
                                 }
@@ -417,9 +438,9 @@ public class RobotBuilder : MonoBehaviour
                                     else if (Input.GetKey(KeyCode.UpArrow) && Input.GetKey(KeyCode.RightControl))
                                     {
                                         Vector3 newPos = new Vector3(
-                                            newObject.transform.position.x + 0.1f * lockAxisUD[hitEuler.ToString()].x,
-                                            newObject.transform.position.y + 0.1f * lockAxisUD[hitEuler.ToString()].y,
-                                            newObject.transform.position.z + 0.1f * lockAxisUD[hitEuler.ToString()].z
+                                            newObject.transform.position.x + speed * lockAxisUD[hitEuler.ToString()].x,
+                                            newObject.transform.position.y + speed * lockAxisUD[hitEuler.ToString()].y,
+                                            newObject.transform.position.z + speed * lockAxisUD[hitEuler.ToString()].z
                                             );
                                         newObject.transform.position = RoundVector(newPos);
                                         canInputKeys = false;
@@ -427,9 +448,9 @@ public class RobotBuilder : MonoBehaviour
                                     else if (Input.GetKey(KeyCode.DownArrow) && Input.GetKey(KeyCode.RightControl))
                                     {
                                         Vector3 newPos = new Vector3(
-                                            newObject.transform.position.x - 0.1f * lockAxisUD[hitEuler.ToString()].x,
-                                            newObject.transform.position.y - 0.1f * lockAxisUD[hitEuler.ToString()].y,
-                                            newObject.transform.position.z - 0.1f * lockAxisUD[hitEuler.ToString()].z
+                                            newObject.transform.position.x - speed * lockAxisUD[hitEuler.ToString()].x,
+                                            newObject.transform.position.y - speed * lockAxisUD[hitEuler.ToString()].y,
+                                            newObject.transform.position.z - speed * lockAxisUD[hitEuler.ToString()].z
                                             );
                                         newObject.transform.position = RoundVector(newPos);
                                         canInputKeys = false;
@@ -437,9 +458,9 @@ public class RobotBuilder : MonoBehaviour
                                     else if (Input.GetKey(KeyCode.UpArrow))
                                     {
                                         Vector3 newPos = new Vector3(
-                                            newObject.transform.position.x + 0.1f * lockAxis[hitEuler.ToString()].x,
-                                            newObject.transform.position.y + 0.1f * lockAxis[hitEuler.ToString()].y,
-                                            newObject.transform.position.z + 0.1f * lockAxis[hitEuler.ToString()].z
+                                            newObject.transform.position.x + speed * lockAxis[hitEuler.ToString()].x,
+                                            newObject.transform.position.y + speed * lockAxis[hitEuler.ToString()].y,
+                                            newObject.transform.position.z + speed * lockAxis[hitEuler.ToString()].z
                                             );
                                         newObject.transform.position = RoundVector(newPos);
                                         canInputKeys = false;
@@ -447,9 +468,9 @@ public class RobotBuilder : MonoBehaviour
                                     else if (Input.GetKey(KeyCode.DownArrow))
                                     {
                                         Vector3 newPos = new Vector3(
-                                            newObject.transform.position.x - 0.1f * lockAxis[hitEuler.ToString()].x,
-                                            newObject.transform.position.y - 0.1f * lockAxis[hitEuler.ToString()].y,
-                                            newObject.transform.position.z - 0.1f * lockAxis[hitEuler.ToString()].z
+                                            newObject.transform.position.x - speed * lockAxis[hitEuler.ToString()].x,
+                                            newObject.transform.position.y - speed * lockAxis[hitEuler.ToString()].y,
+                                            newObject.transform.position.z - speed * lockAxis[hitEuler.ToString()].z
                                             );
                                         newObject.transform.position = RoundVector(newPos);
                                         canInputKeys = false;
@@ -457,9 +478,9 @@ public class RobotBuilder : MonoBehaviour
                                     else if (Input.GetKey(KeyCode.RightArrow))
                                     {
                                         Vector3 newPos = new Vector3(
-                                            newObject.transform.position.x + 0.1f * lockAxisRL[hitEuler.ToString()].x,
-                                            newObject.transform.position.y + 0.1f * lockAxisRL[hitEuler.ToString()].y,
-                                            newObject.transform.position.z + 0.1f * lockAxisRL[hitEuler.ToString()].z
+                                            newObject.transform.position.x + speed * lockAxisRL[hitEuler.ToString()].x,
+                                            newObject.transform.position.y + speed * lockAxisRL[hitEuler.ToString()].y,
+                                            newObject.transform.position.z + speed * lockAxisRL[hitEuler.ToString()].z
                                             );
                                         newObject.transform.position = RoundVector(newPos);
                                         canInputKeys = false;
@@ -467,9 +488,9 @@ public class RobotBuilder : MonoBehaviour
                                     else if (Input.GetKey(KeyCode.LeftArrow))
                                     {
                                         Vector3 newPos = new Vector3(
-                                            newObject.transform.position.x - 0.1f * lockAxisRL[hitEuler.ToString()].x,
-                                            newObject.transform.position.y - 0.1f * lockAxisRL[hitEuler.ToString()].y,
-                                            newObject.transform.position.z - 0.1f * lockAxisRL[hitEuler.ToString()].z
+                                            newObject.transform.position.x - speed * lockAxisRL[hitEuler.ToString()].x,
+                                            newObject.transform.position.y - speed * lockAxisRL[hitEuler.ToString()].y,
+                                            newObject.transform.position.z - speed * lockAxisRL[hitEuler.ToString()].z
                                             );
                                         newObject.transform.position = RoundVector(newPos);
                                         canInputKeys = false;
@@ -510,9 +531,18 @@ public class RobotBuilder : MonoBehaviour
                                 mr = newObject.GetComponent(typeof(MeshRenderer)) as MeshRenderer;
 
                                 objectPos = hit.transform.position;
-                                objectPos.x = objectPos.x + startOffset[hitEuler.ToString()].x * (mr.bounds.size.x + 0.2f);
-                                objectPos.y = objectPos.y + startOffset[hitEuler.ToString()].y * (mr.bounds.size.y + 0.2f);
-                                objectPos.z = objectPos.z + startOffset[hitEuler.ToString()].z * (mr.bounds.size.z + 0.2f);
+                                objectPos.x = objectPos.x + startOffset[hitEuler.ToString()].x * (mr.bounds.size.x + 0.1f);
+                                objectPos.y = objectPos.y + startOffset[hitEuler.ToString()].y * (mr.bounds.size.y + 0.1f);
+                                objectPos.z = objectPos.z + startOffset[hitEuler.ToString()].z * (mr.bounds.size.z + 0.1f);
+
+                                // Align to (0.1, 0.1, 0.1) chuck only locked axis
+                                for (int i = 0; i < 3; ++i)
+                                {
+                                    if (lockAxis[hitEuler.ToString()][i] != 0)
+                                    {
+                                        objectPos[i] = (float)Math.Round(objectPos[i], 1, MidpointRounding.AwayFromZero);
+                                    }
+                                }
 
                                 newObject.transform.position = RoundVector(objectPos);
 
@@ -535,9 +565,9 @@ public class RobotBuilder : MonoBehaviour
                                 if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.RightArrow))
                                 {
                                     Vector3 newPos = new Vector3(
-                                        newObject.transform.position.x + 0.1f * lockAxis[hitEuler.ToString()].x,
-                                        newObject.transform.position.y + 0.1f * lockAxis[hitEuler.ToString()].y,
-                                        newObject.transform.position.z + 0.1f * lockAxis[hitEuler.ToString()].z
+                                        newObject.transform.position.x + speed * lockAxis[hitEuler.ToString()].x,
+                                        newObject.transform.position.y + speed * lockAxis[hitEuler.ToString()].y,
+                                        newObject.transform.position.z + speed * lockAxis[hitEuler.ToString()].z
                                         );
                                     newObject.transform.position = RoundVector(newPos);
                                     canInputKeys = false;
@@ -545,9 +575,9 @@ public class RobotBuilder : MonoBehaviour
                                 else if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.LeftArrow))
                                 {
                                     Vector3 newPos = new Vector3(
-                                        newObject.transform.position.x - 0.1f * lockAxis[hitEuler.ToString()].x,
-                                        newObject.transform.position.y - 0.1f * lockAxis[hitEuler.ToString()].y,
-                                        newObject.transform.position.z - 0.1f * lockAxis[hitEuler.ToString()].z
+                                        newObject.transform.position.x - speed * lockAxis[hitEuler.ToString()].x,
+                                        newObject.transform.position.y - speed * lockAxis[hitEuler.ToString()].y,
+                                        newObject.transform.position.z - speed * lockAxis[hitEuler.ToString()].z
                                         );
                                     newObject.transform.position = RoundVector(newPos);
                                     canInputKeys = false;
