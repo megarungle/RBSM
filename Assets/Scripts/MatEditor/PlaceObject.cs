@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
+using System.Linq;
+using TMPro;
 
 public class PlaceObject : MonoBehaviour
 {
@@ -16,6 +18,10 @@ public class PlaceObject : MonoBehaviour
     public Material whiteColor;
     public Material yellowColor;
     public Material greenColor;
+    
+    public Canvas explorer;
+    public GameObject item;
+    private Canvas exp;
 
     private Material fieldMaterial;
     private Texture2D fieldTexture;
@@ -89,17 +95,43 @@ public class PlaceObject : MonoBehaviour
 
         lastObject.transform.rotation = Quaternion.Euler(new Vector3(x, rotation, z));
     }
+    
+    private void ShowExplorerFields(string[] files)
+    {
+        exp = Object.Instantiate(explorer);
+        Transform content = exp.transform.GetChild(0).transform.GetChild(0).transform.GetChild(0);
+        for (int i = 0; i < files.Length; i++)
+        {
+            GameObject newItem = Object.Instantiate(item, content);
+            string fileName = files[i].Split('/').Last();
+            newItem.transform.GetChild(1).GetComponent<TMP_Text>().text = fileName;
+            WWW www = new WWW("file:///" + files[i]);
+            Sprite previewSprite = Sprite.Create(www.texture, new Rect(0.0f, 0.0f, www.texture.width, www.texture.height), new Vector2(0.5f, 0.5f), 100.0f);
+            Image itemImage = newItem.transform.GetChild(0).GetComponent<Image>() as Image;
+            itemImage.sprite = previewSprite;
+            Button btn = newItem.GetComponent<Button>();
+            btn.onClick.AddListener(
+                () =>
+                {
+                    string path = Application.dataPath + "/CustomFields/" + fileName;
+                    WWW www_tex = new WWW("file:///" + path);
+                    Texture2D tex = www_tex.texture;
+                    localScaleY = tex.width / imgResolution;
+                    localScaleX = tex.height / imgResolution;
+                    Field.transform.localScale = new Vector3(localScaleX, 1, localScaleY);
+                    fieldMaterial.mainTexture = tex;
+                    Destroy(exp.gameObject);
+                }
+            );
+        }
+    }
+    
 
     // UI handlers
+    
     public void SetField() {
-        Texture2D tex = GetComponent<FileManager>().GetTexture();
-        if (tex.width == 8) {
-            return;
-        }
-        localScaleY = tex.width / imgResolution;
-        localScaleX = tex.height / imgResolution;
-        Field.transform.localScale = new Vector3(localScaleX, 1, localScaleY);
-        fieldMaterial.mainTexture = tex;
+        string[] files = GetComponent<FileManager>().GetFiles("png");
+        ShowExplorerFields(files);
     }
 
 

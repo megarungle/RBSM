@@ -4,6 +4,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEditor;
 using System.Drawing;
+using System.IO;
+using System.Linq;
+using TMPro;
 
 public class FileManager : MonoBehaviour
 {
@@ -12,14 +15,9 @@ public class FileManager : MonoBehaviour
     }
 
 
-    public Texture2D GetTexture()
+    public string[] GetFiles(string type) 
     {
-        string path = EditorUtility.OpenFilePanel("Overwrite with png", "", "png");
-        Texture2D tex = new Texture2D(0, 0);
-        if (path != null) {
-            WWW www = new WWW("file:///" + path);
-            tex = www.texture;
-        }
-        return tex;
+        string[] files = Directory.GetFiles(Application.dataPath + "/CustomFields/", "*." + type);
+        return files;
     }
 }

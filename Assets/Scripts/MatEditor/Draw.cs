@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using System.Globalization;
 using System.IO;
 using System.Threading;
+using System.Linq;
 using TMPro;
 
 
@@ -12,21 +13,21 @@ public class Draw : MonoBehaviour
 {
     public GameObject Field;
 
-    public Material fieldMaterial;
-    public Texture2D fieldTexture;
-
-
-    const float defaultMatSizeX = 1f;
-    const float defaultMatSizeY = 1f;
-    const int imgResolution = 256;
-
-
+    public Canvas explorer;
+    public GameObject item;
     public int brushSize = 10;
     public Color currColor = Color.black;
     public int mode = 0; // Manual
     private Vector2 firstPoint;
     private Vector2 secondPoint;
     private Texture2D savedTex;
+    private Material fieldMaterial;
+    private Texture2D fieldTexture;
+    private Canvas exp;
+    
+    const float defaultMatSizeX = 1f;
+    const float defaultMatSizeY = 1f;
+    const int imgResolution = 256;
 
 
     // Start is called before the first frame update
@@ -39,6 +40,10 @@ public class Draw : MonoBehaviour
 
         firstPoint = new Vector2(-1, -1);
         secondPoint = new Vector2(-1, -1);
+
+        if (!Directory.Exists(Application.dataPath + "/CustomFields")) {
+            Directory.CreateDirectory(Application.dataPath + "/CustomFields");
+        }
     }
 
     // Update is called once per frame
@@ -73,6 +78,11 @@ public class Draw : MonoBehaviour
                     break;
             }
         }
+
+        if (Input.GetKeyDown(KeyCode.Escape) && exp != null)
+        {
+            Destroy(exp.gameObject);
+        }
     }
 
 
@@ -85,6 +95,7 @@ public class Draw : MonoBehaviour
             if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) {
                 return;
             }
+            
             Vector2 pixelUV = hit.textureCoord;
             pixelUV.x *= fieldTexture.width;
             pixelUV.y *= fieldTexture.height;
@@ -248,8 +259,8 @@ public class Draw : MonoBehaviour
 
     IEnumerator SetTextureWhite() {
         yield return new WaitForEndOfFrame();
-        fieldTexture = new Texture2D((int)(imgResolution * Field.transform.localScale.z), (int)(imgResolution * Field.transform.localScale.x), TextureFormat.RGB24, false);
-        savedTex = new Texture2D (fieldTexture.width, fieldTexture.height, TextureFormat.RGB24, false);
+        fieldTexture = new Texture2D((int)(imgResolution * Field.transform.localScale.z), (int)(imgResolution * Field.transform.localScale.x));
+        savedTex = new Texture2D (fieldTexture.width, fieldTexture.height);
         Color[] colors = new Color[fieldTexture.width * fieldTexture.height];
         for (int i = 0; i < fieldTexture.width * fieldTexture.height; i++) {
             colors[i] = Color.white;
@@ -262,6 +273,41 @@ public class Draw : MonoBehaviour
 
     public void recalcScales() {
         StartCoroutine(SetTextureWhite());
+    }
+
+    
+    private void ShowExplorerFields(string[] files)
+    {
+        exp = Object.Instantiate(explorer);
+        Transform content = exp.transform.GetChild(0).transform.GetChild(0).transform.GetChild(0);
+        for (int i = 0; i < files.Length; i++)
+        {
+            GameObject newItem = Object.Instantiate(item, content);
+            string fileName = files[i].Split('/').Last();
+            newItem.transform.GetChild(1).GetComponent<TMP_Text>().text = fileName;
+            WWW www = new WWW("file:///" + files[i]);
+            Sprite previewSprite = Sprite.Create(www.texture, new Rect(0.0f, 0.0f, www.texture.width, www.texture.height), new Vector2(0.5f, 0.5f), 100.0f);
+            Image itemImage = newItem.transform.GetChild(0).GetComponent<Image>() as Image;
+            itemImage.sprite = previewSprite;
+            Button btn = newItem.GetComponent<Button>();
+            btn.onClick.AddListener(
+                () =>
+                {
+                    string path = Application.dataPath + "/CustomFields/" + fileName;
+                    WWW www_tex = new WWW("file:///" + path);
+                    Texture2D tex = www_tex.texture;
+                    float localScaleY = tex.width / imgResolution;
+                    float localScaleX = tex.height / imgResolution;
+                    Field.transform.localScale = new Vector3(localScaleX, 1, localScaleY);
+                    fieldTexture = new Texture2D((int)(imgResolution * Field.transform.localScale.z), (int)(imgResolution * Field.transform.localScale.x));
+                    savedTex = new Texture2D((int)(imgResolution * Field.transform.localScale.z), (int)(imgResolution * Field.transform.localScale.x));
+                    Graphics.CopyTexture(tex, fieldTexture);
+                    Graphics.CopyTexture(fieldTexture, savedTex);
+                    fieldMaterial.mainTexture = fieldTexture;
+                    Destroy(exp.gameObject);
+                }
+            );
+        }
     }
 
 
@@ -329,7 +375,13 @@ public class Draw : MonoBehaviour
     public void SaveField(TMP_InputField fileName) {
         var data = fieldTexture.EncodeToPNG();
         string fName = fileName.text == "" ? "image" : fileName.text;
-        File.WriteAllBytes(Application.dataPath + "/Images/CustomFields/" + fName + ".png", data);
+        File.WriteAllBytes(Application.dataPath + "/CustomFields/" + fName + ".png", data);
+    }
+
+
+    public void LoadField() {
+        string[] files = GetComponent<FileManager>().GetFiles("png");
+        ShowExplorerFields(files);
     }
 
 
