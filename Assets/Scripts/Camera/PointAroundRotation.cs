@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class PointAroundRotation : MonoBehaviour
 {
@@ -15,14 +16,37 @@ public class PointAroundRotation : MonoBehaviour
 
 	private float X, Y;
 
+	private Camera cam;
+
 	void Start()
 	{
 		offset = new Vector3(offset.x, offset.y, -Mathf.Abs(zoomMax) / 2);
 		transform.position = point + offset;
+
+		cam = gameObject.GetComponent<Camera>();
 	}
 
 	void Update()
 	{
+		if (Input.GetMouseButtonUp(1))
+        {
+			Vector3 mousePos = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 100.0f));
+			Vector3 direction = mousePos - cam.transform.position;
+
+			RaycastHit hit;
+
+			int layerMask = 1 << 8; // Workspace layer
+
+			if (Physics.Raycast(cam.transform.position, direction, out hit, 100.0f, layerMask))
+			{
+				if (!EventSystem.current.IsPointerOverGameObject()) // Ignore button click if mouse is on UI
+				{
+					point = hit.point;
+					point.y = 4.57f;
+				}
+			}
+		}
+
 		// rotation around point
 		if (Input.GetKey(KeyCode.Mouse2)) // pressed middle click
 		{
