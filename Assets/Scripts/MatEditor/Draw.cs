@@ -110,7 +110,7 @@ public class Draw : MonoBehaviour
                 (int)pixelUV.x <= fieldTexture.width - (int)(brushScaleX) &&
                 (int)pixelUV.y <= fieldTexture.height - (int)(brushScaleY)) {
                 fieldTexture.SetPixels((int)pixelUV.x, (int)pixelUV.y, brushScaleX, brushScaleY, colors);
-                fieldTexture.Apply(true);
+                fieldTexture.Apply();
             }
         }
         if (!isBtnDown) {
@@ -242,7 +242,7 @@ public class Draw : MonoBehaviour
                     angle += (360f / segments);
                 }
 
-                savedTex.Apply(true);
+                savedTex.Apply();
                 fieldMaterial.mainTexture = savedTex;
             }
         }
@@ -259,8 +259,8 @@ public class Draw : MonoBehaviour
 
     IEnumerator SetTextureWhite() {
         yield return new WaitForEndOfFrame();
-        fieldTexture = new Texture2D((int)(imgResolution * Field.transform.localScale.z), (int)(imgResolution * Field.transform.localScale.x));
-        savedTex = new Texture2D (fieldTexture.width, fieldTexture.height);
+        fieldTexture = new Texture2D((int)(imgResolution * Field.transform.localScale.z), (int)(imgResolution * Field.transform.localScale.x), TextureFormat.ARGB32, true);
+        savedTex = new Texture2D (fieldTexture.width, fieldTexture.height, TextureFormat.ARGB32, true);
         Color[] colors = new Color[fieldTexture.width * fieldTexture.height];
         for (int i = 0; i < fieldTexture.width * fieldTexture.height; i++) {
             colors[i] = Color.white;
@@ -294,13 +294,14 @@ public class Draw : MonoBehaviour
                 () =>
                 {
                     string path = Application.dataPath + "/CustomFields/" + fileName;
-                    WWW www_tex = new WWW("file:///" + path);
-                    Texture2D tex = www_tex.texture;
+                    byte[] fileData = File.ReadAllBytes(path);
+                    Texture2D tex = new Texture2D(0, 0);
+                    tex.LoadImage(fileData);
                     float localScaleY = tex.width / imgResolution;
                     float localScaleX = tex.height / imgResolution;
                     Field.transform.localScale = new Vector3(localScaleX, 1, localScaleY);
-                    fieldTexture = new Texture2D((int)(imgResolution * Field.transform.localScale.z), (int)(imgResolution * Field.transform.localScale.x));
-                    savedTex = new Texture2D((int)(imgResolution * Field.transform.localScale.z), (int)(imgResolution * Field.transform.localScale.x));
+                    fieldTexture = new Texture2D((int)(imgResolution * Field.transform.localScale.z), (int)(imgResolution * Field.transform.localScale.x), TextureFormat.ARGB32, true);
+                    savedTex = new Texture2D((int)(imgResolution * Field.transform.localScale.z), (int)(imgResolution * Field.transform.localScale.x), TextureFormat.ARGB32, true);
                     Graphics.CopyTexture(tex, fieldTexture);
                     Graphics.CopyTexture(fieldTexture, savedTex);
                     fieldMaterial.mainTexture = fieldTexture;

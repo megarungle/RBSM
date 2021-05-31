@@ -2018,8 +2018,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Field: {fileID: 826582384}
-  explorer: {fileID: 0}
-  item: {fileID: 0}
+  explorer: {fileID: 1165763308876454428, guid: e1176121ae032ed4ebeee216fcf542fc,
+    type: 3}
+  item: {fileID: 1049240895721522365, guid: c3c258c828b03b34a8bfd3df0621123d, type: 3}
   brushSize: 10
   currColor: {r: 0, g: 0, b: 0, a: 1}
   mode: 0

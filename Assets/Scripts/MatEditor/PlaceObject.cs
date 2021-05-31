@@ -66,6 +66,11 @@ public class PlaceObject : MonoBehaviour
                 Debug.DrawLine(Camera.main.transform.position, hit.point, Color.green, 10f);
             }
         }
+        
+        if (Input.GetKeyDown(KeyCode.Escape) && exp != null)
+        {
+            Destroy(exp.gameObject);
+        }
     }
 
     
@@ -98,6 +103,10 @@ public class PlaceObject : MonoBehaviour
     
     private void ShowExplorerFields(string[] files)
     {
+        if (exp != null)
+        {
+            return;
+        }
         exp = Object.Instantiate(explorer);
         Transform content = exp.transform.GetChild(0).transform.GetChild(0).transform.GetChild(0);
         for (int i = 0; i < files.Length; i++)
@@ -129,7 +138,8 @@ public class PlaceObject : MonoBehaviour
 
     // UI handlers
     
-    public void SetField() {
+    public void SetField()
+    {
         string[] files = GetComponent<FileManager>().GetFiles("png");
         ShowExplorerFields(files);
     }
