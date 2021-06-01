@@ -51,7 +51,7 @@ public class RobotBuilder : MonoBehaviour
         category = null;
         path = null;
 
-        layerMask = -1;
+        layerMask = 0;
 
         newObject = null;
         hitEuler = Vector3.one;
