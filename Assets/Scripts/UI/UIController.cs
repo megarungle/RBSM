@@ -24,7 +24,7 @@ public class UIController : MonoBehaviour
     private bool IsCollapsed = false;
     public GameObject panelFuncElems;
     public GameObject panelBalks;
-    public GameObject panelThinBalks;
+    public GameObject panelAxles;
     public GameObject panelConnectors;
     public GameObject panelWheels;
 
@@ -32,7 +32,7 @@ public class UIController : MonoBehaviour
     {
         panelFuncElems.SetActive(false);
         panelBalks.SetActive(false);
-        panelThinBalks.SetActive(false);
+        panelAxles.SetActive(false);
         panelConnectors.SetActive(false);
         panelWheels.SetActive(false);
     }
@@ -124,10 +124,10 @@ public class UIController : MonoBehaviour
                     panelBalks.SetActive(true);
                     break;
                 }
-            case "BtnThinBalks":
+            case "BtnAxles":
                 {
                     HidePanels();
-                    panelThinBalks.SetActive(true);
+                    panelAxles.SetActive(true);
                     break;
                 }
             case "BtnConnectors":

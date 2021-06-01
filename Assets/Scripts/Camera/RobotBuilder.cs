@@ -21,8 +21,9 @@ public class RobotBuilder : MonoBehaviour
     private string       path;
     private float        speed;
 
-    // Raycasting var
+    // Raycasting vars
     private Camera cam;
+    private int    layerMask;
 
     // Pins and axles positioning
     private Dictionary<string, Vector3> lockAxis = new Dictionary<string, Vector3>(24);
@@ -49,6 +50,8 @@ public class RobotBuilder : MonoBehaviour
         objectName = null;
         category = null;
         path = null;
+
+        layerMask = -1;
 
         newObject = null;
         hitEuler = Vector3.one;
@@ -290,7 +293,7 @@ public class RobotBuilder : MonoBehaviour
                     {
                         if (objectName == "NXT")
                         {
-                            int layerMask = 1 << 8; // Workspace layer
+                            layerMask = 1 << 8; // Workspace layer
 
                             if (Input.GetMouseButtonUp(0) && newObject == null) // LMB to spawn the new object
                             {
@@ -374,7 +377,7 @@ public class RobotBuilder : MonoBehaviour
                         {
                             if (Input.GetMouseButtonUp(0) && newObject == null) // LMB to spawn the new object
                             {
-                                int layerMask = 1 << 10; // Pins and axles layer
+                                layerMask = 1 << 10; // Pins and axles layer
 
                                 if (Physics.Raycast(cam.transform.position, direction, out hit, 100.0f, layerMask))
                                 {
@@ -435,7 +438,7 @@ public class RobotBuilder : MonoBehaviour
                                         newObject.transform.Rotate(0.0f, -90.0f, 0.0f, Space.World);
                                         canInputKeys = false;
                                     }
-                                    else if (Input.GetKey(KeyCode.UpArrow) && Input.GetKey(KeyCode.RightControl))
+                                    else if (Input.GetKey(KeyCode.UpArrow) && Input.GetKey(KeyCode.LeftAlt))
                                     {
                                         Vector3 newPos = new Vector3(
                                             newObject.transform.position.x + speed * lockAxisUD[hitEuler.ToString()].x,
@@ -445,7 +448,7 @@ public class RobotBuilder : MonoBehaviour
                                         newObject.transform.position = RoundVector(newPos);
                                         canInputKeys = false;
                                     }
-                                    else if (Input.GetKey(KeyCode.DownArrow) && Input.GetKey(KeyCode.RightControl))
+                                    else if (Input.GetKey(KeyCode.DownArrow) && Input.GetKey(KeyCode.LeftAlt))
                                     {
                                         Vector3 newPos = new Vector3(
                                             newObject.transform.position.x - speed * lockAxisUD[hitEuler.ToString()].x,
@@ -508,11 +511,16 @@ public class RobotBuilder : MonoBehaviour
 
                         break;
                     }
+                case "Axles":
+                    {
+                        layerMask = 1 << 11; // Сross layer
+                        goto case "Connectors";
+                    }
                 case "Connectors":
                     {
                         if (Input.GetMouseButtonUp(0) && newObject == null) // LMB to spawn the new object
                         {
-                            int layerMask = 1 << 9; // Groove layer
+                            layerMask |= 1 << 9; // Groove layer
 
                             if (Physics.Raycast(cam.transform.position, direction, out hit, 100.0f, layerMask))
                             {
