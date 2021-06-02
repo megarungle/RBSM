@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4415132588929440043}
   - component: {fileID: 4620329336940847901}
   - component: {fileID: 1378730845340639204}
+  - component: {fileID: 4401731304113666943}
   m_Layer: 0
   m_Name: SensorUltrasonic
   m_TagString: Untagged
@@ -90,6 +91,19 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!114 &4401731304113666943
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 801335527137946424}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d502cab565f30d44bc6df48a6009b16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  slot: 
 --- !u!1001 &3401377935654759799
 PrefabInstance:
   m_ObjectHideFlags: 0

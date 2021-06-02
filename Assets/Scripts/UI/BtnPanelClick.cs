@@ -13,4 +13,9 @@ public class BtnPanelClick : MonoBehaviour
 
         builder.SetNames(gameObject.name, parentName);
     }
+
+    public void SelectSlotClick()
+    {
+        builder.SetSlot(gameObject.name);
+    }
 }

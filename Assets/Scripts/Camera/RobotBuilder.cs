@@ -9,6 +9,9 @@ public class RobotBuilder : MonoBehaviour
 {
     public GameObject robot;
 
+    [SerializeField]
+    private CanvasController canvasController;
+
     // Object vars
     private string       objectName;
     private string       category;
@@ -20,6 +23,7 @@ public class RobotBuilder : MonoBehaviour
     private Vector3      objectPos;
     private string       path;
     private float        speed;
+    private string       slot;
 
     // Raycasting vars
     private Camera cam;
@@ -33,11 +37,19 @@ public class RobotBuilder : MonoBehaviour
     private Dictionary<string, Vector3> lockAxisRL = new Dictionary<string, Vector3>(24);
     private Dictionary<string, Vector3> lockAxisUD = new Dictionary<string, Vector3>(24);
 
+    // Slots for binding func elems
+    private List<string> slots = new List<string> { "1", "2", "3", "4", "A", "B", "C" };
+
     public void SetNames(string objName, string parentName)
     {
         objectName = objName;
         category = parentName;
         path = "Prefabs models/" + category + "/" + objectName;
+    }
+
+    public void SetSlot(string s)
+    {
+        slot = s;
     }
 
     private void ResetWorkspace()
@@ -58,6 +70,7 @@ public class RobotBuilder : MonoBehaviour
         mr = null;
         objectPos = Vector3.zero;
         speed = 0.1f;
+        slot = null;
 
         canLift = true;
         canInputKeys = true;
@@ -85,6 +98,18 @@ public class RobotBuilder : MonoBehaviour
         return vec;
     }
 
+    private IEnumerator WaitSelectSlot(GameObject nObj)
+    {
+        canvasController.OpenPopUp(slots);
+
+        yield return new WaitUntil(() => slot != null);
+
+        nObj.GetComponent<BindingFE>().slot = slot;
+        canvasController.ClosePopUp();
+        slots.Remove(slot);
+        slot = null;
+    }
+    
     void Start()
     {
         ResetWorkspace();
@@ -247,7 +272,7 @@ public class RobotBuilder : MonoBehaviour
         lockAxisUD.Add("(270.0, 90.0, 0.0)", new Vector3(0, 1, 0));
     }
 
-    void LiftObject()
+    private void LiftObject()
     {
         if (canLift)
         {
@@ -412,6 +437,10 @@ public class RobotBuilder : MonoBehaviour
                             }
                             else if (Input.GetMouseButtonUp(0) && newObject != null) // LBM to place spawned object
                             {
+                                if (category == "FuncElems")
+                                {
+                                    StartCoroutine(WaitSelectSlot(newObject));
+                                }
                                 ResetWorkspace();
                                 return;
                             }
