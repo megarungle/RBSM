@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8931118787230845189}
   - component: {fileID: 480393710479700787}
   - component: {fileID: 6167181489008185290}
+  - component: {fileID: -2093786500506417673}
   m_Layer: 0
   m_Name: MotorTacho
   m_TagString: Untagged
@@ -113,6 +114,19 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!114 &-2093786500506417673
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5596545998875835158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d502cab565f30d44bc6df48a6009b16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  slot: 
 --- !u!1001 &92464678594210966
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -930,11 +944,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 8931118787230845189}
     m_Modifications:
-    - target: {fileID: 5474434761331237765, guid: 3a27be7461d8a7b41895d0051d29ec19,
-        type: 3}
-      propertyPath: m_Name
-      value: CrossTrigger
-      objectReference: {fileID: 0}
     - target: {fileID: 5474434761331237762, guid: 3a27be7461d8a7b41895d0051d29ec19,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1004,6 +1013,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalScale.z
       value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 5474434761331237765, guid: 3a27be7461d8a7b41895d0051d29ec19,
+        type: 3}
+      propertyPath: m_Name
+      value: CrossTrigger
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3a27be7461d8a7b41895d0051d29ec19, type: 3}
@@ -1470,11 +1484,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 8931118787230845189}
     m_Modifications:
-    - target: {fileID: 5474434761331237765, guid: 3a27be7461d8a7b41895d0051d29ec19,
-        type: 3}
-      propertyPath: m_Name
-      value: CrossTrigger (1)
-      objectReference: {fileID: 0}
     - target: {fileID: 5474434761331237762, guid: 3a27be7461d8a7b41895d0051d29ec19,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1544,6 +1553,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalScale.z
       value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 5474434761331237765, guid: 3a27be7461d8a7b41895d0051d29ec19,
+        type: 3}
+      propertyPath: m_Name
+      value: CrossTrigger (1)
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3a27be7461d8a7b41895d0051d29ec19, type: 3}
