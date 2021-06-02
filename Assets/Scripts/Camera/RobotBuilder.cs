@@ -290,6 +290,7 @@ public class RobotBuilder : MonoBehaviour
             {
                 case "FuncElems":
                 case "Balks":
+                case "Wheels":
                     {
                         if (objectName == "NXT")
                         {
