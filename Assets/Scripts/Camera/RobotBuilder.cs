@@ -40,6 +40,9 @@ public class RobotBuilder : MonoBehaviour
     // Slots for binding func elems
     private List<string> slots = new List<string> { "1", "2", "3", "4", "A", "B", "C" };
 
+    // Stack of created objects
+    private Stack<GameObject> stackObjects = new Stack<GameObject>(100);
+
     public void SetNames(string objName, string parentName)
     {
         objectName = objName;
@@ -56,6 +59,7 @@ public class RobotBuilder : MonoBehaviour
     {
         if (newObject != null)
         {
+            stackObjects.Push(newObject);
             newObject.transform.SetParent(robot.transform); // Attach created object to robot
         }
 
@@ -109,7 +113,24 @@ public class RobotBuilder : MonoBehaviour
         slots.Remove(slot);
         slot = null;
     }
-    
+
+    private void LiftObject()
+    {
+        if (canLift)
+        {
+            if (Input.GetKey(KeyCode.W)) // Up
+            {
+                Vector3 pos = new Vector3(robot.transform.position.x, Mathf.Clamp(robot.transform.position.y + 0.1f, -Mathf.Infinity, 15.0f), robot.transform.position.z);
+                robot.transform.position = RoundVector(pos);
+            }
+            else if (Input.GetKey(KeyCode.S)) // Down
+            {
+                Vector3 pos = new Vector3(robot.transform.position.x, Mathf.Clamp(robot.transform.position.y - 0.1f, 5.2f, Mathf.Infinity), robot.transform.position.z);
+                robot.transform.position = RoundVector(pos);
+            }
+        }
+    }
+
     void Start()
     {
         ResetWorkspace();
@@ -272,23 +293,6 @@ public class RobotBuilder : MonoBehaviour
         lockAxisUD.Add("(270.0, 90.0, 0.0)", new Vector3(0, 1, 0));
     }
 
-    private void LiftObject()
-    {
-        if (canLift)
-        {
-            if (Input.GetKey(KeyCode.W)) // Up
-            {
-                Vector3 pos = new Vector3(robot.transform.position.x, Mathf.Clamp(robot.transform.position.y + 0.1f, -Mathf.Infinity, 15.0f), robot.transform.position.z);
-                robot.transform.position = RoundVector(pos);
-            }
-            else if (Input.GetKey(KeyCode.S)) // Down
-            {
-                Vector3 pos = new Vector3(robot.transform.position.x, Mathf.Clamp(robot.transform.position.y - 0.1f, 5.2f, Mathf.Infinity), robot.transform.position.z);
-                robot.transform.position = RoundVector(pos);
-            }
-        }
-    }
-
     void Update()
     {
         if (canInputKeys && Input.GetKey(KeyCode.RightShift))
@@ -296,7 +300,15 @@ public class RobotBuilder : MonoBehaviour
             speed = 0.12f - speed;
             canInputKeys = false;
         }
-        if (Input.GetKeyUp(KeyCode.RightShift))
+        else if (canInputKeys && newObject == null && category == null && Input.GetKey(KeyCode.Delete))
+        {
+            if (stackObjects.Count != 0)
+            {
+                Destroy(stackObjects.Pop());
+                canInputKeys = false;
+            }
+        }
+        if (Input.GetKeyUp(KeyCode.RightShift) || Input.GetKeyUp(KeyCode.Delete))
         {
             canInputKeys = true;
         }
