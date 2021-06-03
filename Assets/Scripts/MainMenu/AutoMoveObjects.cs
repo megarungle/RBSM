@@ -39,8 +39,6 @@ public class AutoMoveObjects : MonoBehaviour
 
     void Update()
     {
-        Debug.Log(count);
-
         if (count >= limit)
         {
             StartCoroutine(DelayResetCount());
