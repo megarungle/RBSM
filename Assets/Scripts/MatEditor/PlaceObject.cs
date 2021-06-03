@@ -5,6 +5,8 @@ using UnityEngine;
 using System.Linq;
 using System.IO;
 using TMPro;
+using System.Runtime.Serialization.Formatters.Binary;
+
 
 
 [System.Serializable]
