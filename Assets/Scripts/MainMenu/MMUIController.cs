@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System.Threading;
+using UnityEngine.SceneManagement;
 
 public class MMUIController : MonoBehaviour
 {
@@ -10,6 +11,8 @@ public class MMUIController : MonoBehaviour
     public GameObject panelEditor;
     public GameObject panelBuilder;
     public GameObject panelSimulator;
+
+    public ScreenFader screenFader;
 
     private Animation animDrawer;
     private Animation animEditor;
@@ -37,10 +40,20 @@ public class MMUIController : MonoBehaviour
         lastPanel = panel;
     }
 
+    private IEnumerator ChangeScene(string scene)
+    {
+        screenFader.fadeState = ScreenFader.FadeState.In;
+
+        yield return new WaitForSeconds(2.0f);
+        
+        SceneManager.LoadScene(scene);
+    }
+
     public void BtnClick(string bName)
     {
         switch (bName)
         {
+            // Left menu
             case "BtnDrawer":
                 {
                     StartCoroutine(Animate(animDrawer, panelDrawer));
@@ -59,6 +72,30 @@ public class MMUIController : MonoBehaviour
             case "BtnSimulator":
                 {
                     StartCoroutine(Animate(animSimulator, panelSimulator));
+                    break;
+                }
+            // Menu on right panel
+            case "StartDrawing":
+                {
+                    StartCoroutine(ChangeScene("MatDrawer"));
+                    break;
+                }
+            case "StartPlacement":
+                {
+                    StartCoroutine(ChangeScene("MatEdit"));
+                    break;
+                }
+            case "StartBuilding":
+                {
+                    StartCoroutine(ChangeScene("RobotConstructor"));
+                    break;
+                }
+            case "StartProgramming":
+                {
+                    break;
+                }
+            case "StartSimulation":
+                {
                     break;
                 }
             default:
