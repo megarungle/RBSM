@@ -68,3 +68,11 @@ crashlytics-build.properties
 # Exceptions
 !*.dll
 !*.obj
+
+# Runtime folders and meta files
+/[Aa]ssets/CustomFields
+/[Aa]ssets/MatsJson
+/[Aa]ssets/CustomFields.meta
+/[Aa]ssets/MatsJson.meta
+/[Aa]ssets/RobotsJson
+/[Aa]ssets/RobotsJson.meta

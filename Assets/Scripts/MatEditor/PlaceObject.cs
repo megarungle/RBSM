@@ -3,14 +3,70 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
 using System.Linq;
+using System.IO;
 using TMPro;
+
+
+[System.Serializable]
+public class ObjectState
+{
+    public string name;
+    public Vector3 position;
+    public Quaternion rotation;
+    public string color;
+    public Vector3 size;
+
+    public ObjectState(string n, Vector3 pos, Quaternion rot, string col, Vector3 s)
+    {
+        name = n;
+        position = pos;
+        rotation = rot;
+        color = col;
+        size = s;
+    }
+
+    public void print()
+    {
+        Debug.Log(name);
+        Debug.Log(position);
+        Debug.Log(rotation);
+        Debug.Log(color);
+        Debug.Log(size);
+    }
+}
+
+public static class JsonHelper {
+    public static T[] FromJson<T>(string json) {
+        Wrapper<T> wrapper = JsonUtility.FromJson<Wrapper<T>>(json);
+        return wrapper.Items;
+    }
+
+    public static string ToJson<T>(T[] array) {
+        Wrapper<T> wrapper = new Wrapper<T>();
+        wrapper.Items = array;
+        return JsonUtility.ToJson(wrapper);
+    }
+
+    public static string ToJson<T>(T[] array, bool prettyPrint) {
+        Wrapper<T> wrapper = new Wrapper<T>();
+        wrapper.Items = array;
+        return JsonUtility.ToJson(wrapper, prettyPrint);
+    }
+
+    [System.Serializable]
+    private class Wrapper<T> {
+        public T[] Items;
+    }
+}
 
 public class PlaceObject : MonoBehaviour
 {
     public GameObject Field;
+    public GameObject Objects;
     public GameObject CubePrefab;
     public GameObject SpherePrefab;
     public GameObject CylinderPrefab;
+    public Button SaveMatBtn;
 
     public Material blueColor;
     public Material redColor;
@@ -35,6 +91,9 @@ public class PlaceObject : MonoBehaviour
     private Material color;
 
     private int imgResolution = 256;
+    private Dictionary<Material, string> colorNames;
+    private Dictionary<string, GameObject> objectNames;
+    private string fileImage = "";
 
 
     void Start()
@@ -43,6 +102,22 @@ public class PlaceObject : MonoBehaviour
         fieldMaterial = renderer.material;
         currentObject = CubePrefab;
         color = whiteColor;
+        colorNames = new Dictionary<Material, string>
+        {
+            {blueColor, "blue"},
+            {redColor, "red"},
+            {whiteColor, "white"},
+            {greenColor, "green"},
+            {yellowColor, "yellow"},
+            {blackColor, "black"}
+        };
+        objectNames = new Dictionary<string, GameObject>
+        {
+            {"Cube(Clone)", CubePrefab},
+            {"Sphere(Clone)", SpherePrefab},
+            {"Cylinder(Clone)", CylinderPrefab}
+        };
+        SaveMatBtn.gameObject.SetActive(false);
     }
 
     // Update is called once per frame
@@ -59,11 +134,24 @@ public class PlaceObject : MonoBehaviour
                 }
                 Bounds b = currentObject.GetComponent<MeshFilter>().sharedMesh.bounds;
                 float height = b.size.y;
-                lastObject = Instantiate(currentObject, hit.point + new Vector3(0, (height / 2.0f), 0), Quaternion.Euler(Vector3.zero));
+                lastObject = Instantiate(currentObject, hit.point + new Vector3(0, (height / 2.0f), 0), Quaternion.Euler(Vector3.zero), Objects.transform);
                 UpdateScale();
                 UpdateColor();
                 UpdateRotation();
-                Debug.DrawLine(Camera.main.transform.position, hit.point, Color.green, 10f);
+            }
+        }
+
+        if (lastObject && Input.GetKey(KeyCode.Q))
+        {
+            Vector3 mousePos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 100.0f));
+            RaycastHit hit;
+            Vector3 direction = mousePos - Camera.main.transform.position;
+
+            if (Physics.Raycast(Camera.main.transform.position, direction, out hit, 100.0f, 1 << 8))
+            {
+                Bounds b = currentObject.GetComponent<MeshFilter>().sharedMesh.bounds;
+                float height = b.size.y;
+                lastObject.transform.position = hit.point + new Vector3(0, (height / 2.0f) * lastObject.transform.localScale.y, 0);
             }
         }
         
@@ -75,6 +163,10 @@ public class PlaceObject : MonoBehaviour
 
     
     void UpdateScale() {
+        if (!lastObject)
+        {
+            return;
+        }
         float prevSize = lastObject.transform.localScale.y;
 
         float x = lastObject.transform.position.x;
@@ -89,12 +181,20 @@ public class PlaceObject : MonoBehaviour
 
 
     void UpdateColor() {
+        if (!lastObject)
+        {
+            return;
+        }
         lastObject.GetComponent<MeshRenderer>().material = color;
     }
 
 
     public void UpdateRotation()
     {
+        if (!lastObject)
+        {
+            return;
+        }
         float x = lastObject.transform.rotation.x;
         float z = lastObject.transform.rotation.z;
 
@@ -128,7 +228,13 @@ public class PlaceObject : MonoBehaviour
                     localScaleY = tex.width / imgResolution;
                     localScaleX = tex.height / imgResolution;
                     Field.transform.localScale = new Vector3(localScaleX, 1, localScaleY);
+                    foreach (Transform child in Objects.transform)
+                    {
+                        Destroy(child.gameObject);
+                    }
                     fieldMaterial.mainTexture = tex;
+                    fileImage = fileName;
+                    SaveMatBtn.gameObject.SetActive(true);
                     Destroy(exp.gameObject);
                 }
             );
@@ -195,5 +301,84 @@ public class PlaceObject : MonoBehaviour
                 currentObject = CylinderPrefab;
                 break;
         }
+    }
+    
+    
+    public IEnumerator saveToDisk(string path, string data)
+    {
+        yield return new WaitForSeconds(2);
+        File.WriteAllText(path, data);
+
+    }
+    
+    public void SerializeField()
+    {
+        ObjectState[] objectsParams = new ObjectState[Objects.transform.childCount];
+        for (int i = 0; i < Objects.transform.childCount; i++)
+        {
+            Transform obj = Objects.transform.GetChild(i);
+            string name = obj.name;
+            Vector3 position = obj.position;
+            Quaternion rotation = obj.rotation;
+            string col = colorNames[obj.GetComponent<MeshRenderer>().sharedMaterial];
+            ObjectState state = new ObjectState(name, position, rotation, col, obj.localScale);
+            objectsParams[i] = state;
+        }
+        string objectsToJson = JsonHelper.ToJson(objectsParams, true);
+        string fileName = fileImage.Substring(0, fileImage.Length - 3) + "json";
+        string path = Application.dataPath + "/MatsJson/";
+        if(!Directory.Exists(path)) {
+            Directory.CreateDirectory(path);
+        }
+        
+        if(!File.Exists(path + fileName)) {
+            File.Create(path + fileName);
+        }
+        
+        StartCoroutine(saveToDisk(path + fileName, objectsToJson));
+    }
+
+
+    public void DeserializeField()
+    { 
+        string fileName = "Test.json"; // TODO: Need to get this filename from explorer
+        string path = Application.dataPath + "/MatsJson/";
+        string json = File.ReadAllText(path + fileName);
+        ObjectState[] objectsParams;
+        objectsParams = JsonHelper.FromJson<ObjectState>(json);
+        
+        foreach (Transform child in Objects.transform)
+        {
+            Destroy(child.gameObject);
+        }
+        
+        Dictionary<string, Material> revertedDict = new Dictionary<string, Material>();
+        foreach (Material key in colorNames.Keys)
+        {
+            revertedDict[colorNames[key]] = key;
+        }
+        
+        for (int i = 0; i < objectsParams.Length; i++)
+        {
+            ObjectState obj = objectsParams[i];
+            string name = obj.name;
+            Vector3 position = obj.position;
+            Quaternion rotation = obj.rotation;
+            string col = obj.color;
+            Vector3 s = obj.size;
+            GameObject objectInst = Instantiate(objectNames[name], position, rotation, Objects.transform);
+            objectInst.transform.localScale = s;
+            objectInst.GetComponent<MeshRenderer>().material = revertedDict[col];
+        }
+        
+        path = Application.dataPath + "/CustomFields/" + fileName.Substring(0, fileName.Length - 4) + "png";
+        WWW www_tex = new WWW("file:///" + path);
+        Texture2D tex = www_tex.texture;
+        localScaleY = tex.width / imgResolution;
+        localScaleX = tex.height / imgResolution;
+        Field.transform.localScale = new Vector3(localScaleX, 1, localScaleY);
+        fieldMaterial.mainTexture = tex;
+        fileImage = fileName.Substring(0, fileName.Length - 4) + "png";
+        SaveMatBtn.gameObject.SetActive(true);
     }
 }

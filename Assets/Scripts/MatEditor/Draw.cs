@@ -375,7 +375,16 @@ public class Draw : MonoBehaviour
 
     public void SaveField(TMP_InputField fileName) {
         var data = fieldTexture.EncodeToPNG();
-        string fName = fileName.text == "" ? "image" : fileName.text;
+        if (fileName.text == "")
+        {
+            fileName.placeholder.GetComponent<TMP_Text>().text = "Please type the file name";
+            fileName.placeholder.GetComponent<TMP_Text>().color = Color.red;
+            return;
+        }
+        fileName.placeholder.GetComponent<TMP_Text>().text = "Enter file name...";
+        fileName.placeholder.GetComponent<TMP_Text>().color = Color.white;
+        string fName = fileName.text;
+        fileName.text = "";
         File.WriteAllBytes(Application.dataPath + "/CustomFields/" + fName + ".png", data);
     }
 

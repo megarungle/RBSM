@@ -17,7 +17,13 @@ public class FileManager : MonoBehaviour
 
     public string[] GetFiles(string type) 
     {
-        string[] files = Directory.GetFiles(Application.dataPath + "/CustomFields/", "*." + type);
+        string path = Application.dataPath + "/CustomFields/";
+        string[] files = new string[0];
+        if (!Directory.Exists(path))
+        {
+            return files;
+        }
+        files = Directory.GetFiles(path, "*." + type);
         return files;
     }
 }
