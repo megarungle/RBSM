@@ -12,9 +12,7 @@ using SimpleFileBrowser;
 public class Draw : MonoBehaviour
 {
     public GameObject Field;
-
-    public Canvas explorer;
-    public GameObject item;
+    
     public int brushSize = 10;
     public Color currColor = Color.black;
     public int mode = 0; // Manual
@@ -276,7 +274,7 @@ public class Draw : MonoBehaviour
     }
 
 
-    private void SaveToPath(string path)
+    private void LoadToPath(string path)
     {
         byte[] fileData = File.ReadAllBytes(path);
         Texture2D tex = new Texture2D(0, 0);
@@ -376,7 +374,7 @@ public class Draw : MonoBehaviour
         if (FileBrowser.Success)
         {
             string destinationPath = FileBrowser.Result[0];
-            SaveToPath(destinationPath);
+            LoadToPath(destinationPath);
         }
     }
 

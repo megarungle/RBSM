@@ -5,7 +5,7 @@ using UnityEngine;
 using System.Linq;
 using System.IO;
 using TMPro;
-
+using SimpleFileBrowser;
 
 
 [System.Serializable]
@@ -75,9 +75,6 @@ public class PlaceObject : MonoBehaviour
     public Material whiteColor;
     public Material yellowColor;
     public Material greenColor;
-    
-    public Canvas explorer;
-    public GameObject item;
     private Canvas exp;
 
     private Material fieldMaterial;
@@ -205,56 +202,43 @@ public class PlaceObject : MonoBehaviour
         lastObject.transform.rotation = Quaternion.Euler(new Vector3(x, rotation, z));
     }
     
-    private void ShowExplorerFields(string[] files)
-    {
-        if (exp != null)
-        {
-            return;
-        }
-        exp = Object.Instantiate(explorer);
-        Transform content = exp.transform.GetChild(0).transform.GetChild(0).transform.GetChild(0);
-        for (int i = 0; i < files.Length; i++)
-        {
-            GameObject newItem = Object.Instantiate(item, content);
-            string fileName = files[i].Split('/').Last();
-            newItem.transform.GetChild(1).GetComponent<TMP_Text>().text = fileName;
-            WWW www = new WWW("file:///" + files[i]);
-            Sprite previewSprite = Sprite.Create(www.texture, new Rect(0.0f, 0.0f, www.texture.width, www.texture.height), new Vector2(0.5f, 0.5f), 100.0f);
-            Image itemImage = newItem.transform.GetChild(0).GetComponent<Image>() as Image;
-            itemImage.sprite = previewSprite;
-            Button btn = newItem.GetComponent<Button>();
-            btn.onClick.AddListener(
-                () =>
-                {
-                    string path = Application.dataPath + "/CustomFields/" + fileName;
-                    WWW www_tex = new WWW("file:///" + path);
-                    Texture2D tex = www_tex.texture;
-                    localScaleY = tex.width / imgResolution;
-                    localScaleX = tex.height / imgResolution;
-                    Field.transform.localScale = new Vector3(localScaleX, 1, localScaleY);
-                    foreach (Transform child in Objects.transform)
-                    {
-                        Destroy(child.gameObject);
-                    }
-                    fieldMaterial.mainTexture = tex;
-                    fileImage = fileName;
-                    SaveMatBtn.gameObject.SetActive(true);
-                    Destroy(exp.gameObject);
-                }
-            );
-        }
-    }
-    
 
     // UI handlers
-    
-    public void SetField()
+    private void LoadFieldToPath(string path)
     {
-        string[] files = GetComponent<FileManager>().GetFiles("png");
-        ShowExplorerFields(files);
+        WWW www_tex = new WWW("file:///" + path);
+        Texture2D tex = www_tex.texture;
+        localScaleY = tex.width / imgResolution;
+        localScaleX = tex.height / imgResolution;
+        Field.transform.localScale = new Vector3(localScaleX, 1, localScaleY);
+        foreach (Transform child in Objects.transform)
+        {
+            Destroy(child.gameObject);
+        }
+        fieldMaterial.mainTexture = tex;
+        SaveMatBtn.gameObject.SetActive(true);
+    }
+    
+    IEnumerator ShowLoadFieldDialogCoroutine()
+    {
+        yield return FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.FilesAndFolders, false, Application.dataPath + "/CustomFields/", null, "Load field", "Load");
+        
+        if (FileBrowser.Success)
+        {
+            string destinationPath = FileBrowser.Result[0];
+            fileImage = FileBrowserHelpers.GetFilename(FileBrowser.Result[0]);
+            LoadFieldToPath(destinationPath);
+        }
     }
 
 
+    public void SetField() {
+        FileBrowser.SetFilters(true, new FileBrowser.Filter("Images", ".png"));
+        FileBrowser.SetDefaultFilter(".png");
+        StartCoroutine(ShowLoadFieldDialogCoroutine());
+    }
+    
+    
     public void SetSize(float newValue) {
         size = newValue;
         UpdateScale();
@@ -333,13 +317,29 @@ public class PlaceObject : MonoBehaviour
         string path = Application.dataPath + "/MatsJson/";
         File.WriteAllText(path + fileName, objectsToJson);
     }
+    
+    IEnumerator ShowEnvLoadDialogCoroutine()
+    {
+        yield return FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.FilesAndFolders, false, Application.dataPath + "/MatsJson/", null, "Load environment", "Load");
+        
+        if (FileBrowser.Success)
+        {
+            string destinationPath = FileBrowser.Result[0];
+            DeserializeField(FileBrowserHelpers.GetDirectoryName(FileBrowser.Result[0]), FileBrowserHelpers.GetFilename(FileBrowser.Result[0]));
+        }
+    }
 
 
-    public void DeserializeField()
+    public void LoadField() {
+        FileBrowser.SetFilters(true, new FileBrowser.Filter("Json", ".json"));
+        FileBrowser.SetDefaultFilter(".json");
+        StartCoroutine(ShowEnvLoadDialogCoroutine());
+    }
+
+
+    public void DeserializeField(string path, string fileName)
     { 
-        string fileName = "Test.json"; // TODO: Need to get this filename from explorer
-        string path = Application.dataPath + "/MatsJson/";
-        string json = File.ReadAllText(path + fileName);
+        string json = File.ReadAllText(path + '\\' + fileName);
         ObjectState[] objectsParams;
         objectsParams = JsonHelper.FromJson<ObjectState>(json);
         
