@@ -306,7 +306,7 @@ public class PlaceObject : MonoBehaviour
         {
             Transform obj = Objects.transform.GetChild(i);
             string name = obj.name;
-            Vector3 position = obj.position;
+            Vector3 position = obj.localPosition;
             Quaternion rotation = obj.rotation;
             string col = colorNames[obj.GetComponent<MeshRenderer>().sharedMaterial];
             ObjectState state = new ObjectState(name, position, rotation, col, obj.localScale);
@@ -362,7 +362,8 @@ public class PlaceObject : MonoBehaviour
             Quaternion rotation = obj.rotation;
             string col = obj.color;
             Vector3 s = obj.size;
-            GameObject objectInst = Instantiate(objectNames[name], position, rotation, Objects.transform);
+            GameObject objectInst = Instantiate(objectNames[name], new Vector3(0, 0, 0), rotation, Objects.transform);
+            objectInst.transform.localPosition = position;
             objectInst.transform.localScale = s;
             objectInst.GetComponent<MeshRenderer>().material = revertedDict[col];
         }
