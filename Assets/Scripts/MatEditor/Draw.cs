@@ -7,7 +7,7 @@ using System.IO;
 using System.Threading;
 using System.Linq;
 using TMPro;
-
+using SimpleFileBrowser;
 
 public class Draw : MonoBehaviour
 {
@@ -373,19 +373,23 @@ public class Draw : MonoBehaviour
     }
 
 
-    public void SaveField(TMP_InputField fileName) {
-        var data = fieldTexture.EncodeToPNG();
-        if (fileName.text == "")
+    public void SaveField()
+    {
+		StartCoroutine(ShowLoadDialogCoroutine());
+    }
+    
+    IEnumerator ShowLoadDialogCoroutine()
+    {
+        yield return FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.FilesAndFolders, true, null, null, "Load Files and Folders", "Load");
+        
+        if (FileBrowser.Success)
         {
-            fileName.placeholder.GetComponent<TMP_Text>().text = "Please type the file name";
-            fileName.placeholder.GetComponent<TMP_Text>().color = Color.red;
-            return;
+            byte[] bytes = FileBrowserHelpers.ReadBytesFromFile(FileBrowser.Result[0]);
+
+            string destinationPath = Path.Combine(Application.persistentDataPath, FileBrowserHelpers.GetFilename(FileBrowser.Result[0]));
+            FileBrowserHelpers.CopyFile(FileBrowser.Result[0], destinationPath);
+            Debug.Log(destinationPath);
         }
-        fileName.placeholder.GetComponent<TMP_Text>().text = "Enter file name...";
-        fileName.placeholder.GetComponent<TMP_Text>().color = Color.white;
-        string fName = fileName.text;
-        fileName.text = "";
-        File.WriteAllBytes(Application.dataPath + "/CustomFields/" + fName + ".png", data);
     }
 
 
