@@ -99,6 +99,9 @@ public class PlaceObject : MonoBehaviour
 
     void Start()
     {
+        if(!Directory.Exists(Application.dataPath + "/MatsJson/")) {
+            Directory.CreateDirectory(Application.dataPath + "/MatsJson/");
+        }
         MeshRenderer renderer = Field.GetComponent<MeshRenderer>();
         fieldMaterial = renderer.material;
         currentObject = CubePrefab;
@@ -328,15 +331,7 @@ public class PlaceObject : MonoBehaviour
         string objectsToJson = JsonHelper.ToJson(objectsParams, true);
         string fileName = fileImage.Substring(0, fileImage.Length - 3) + "json";
         string path = Application.dataPath + "/MatsJson/";
-        if(!Directory.Exists(path)) {
-            Directory.CreateDirectory(path);
-        }
-        
-        if(!File.Exists(path + fileName)) {
-            File.Create(path + fileName);
-        }
-        
-        StartCoroutine(saveToDisk(path + fileName, objectsToJson));
+        File.WriteAllText(path + fileName, objectsToJson);
     }
 
 
