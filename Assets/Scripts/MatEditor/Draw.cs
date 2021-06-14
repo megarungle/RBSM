@@ -12,9 +12,7 @@ using SimpleFileBrowser;
 public class Draw : MonoBehaviour
 {
     public GameObject Field;
-
-    public Canvas explorer;
-    public GameObject item;
+    
     public int brushSize = 10;
     public Color currColor = Color.black;
     public int mode = 0; // Manual
@@ -275,40 +273,20 @@ public class Draw : MonoBehaviour
         StartCoroutine(SetTextureWhite());
     }
 
-    
-    private void ShowExplorerFields(string[] files)
+
+    private void LoadToPath(string path)
     {
-        exp = Object.Instantiate(explorer);
-        Transform content = exp.transform.GetChild(0).transform.GetChild(0).transform.GetChild(0);
-        for (int i = 0; i < files.Length; i++)
-        {
-            GameObject newItem = Object.Instantiate(item, content);
-            string fileName = files[i].Split('/').Last();
-            newItem.transform.GetChild(1).GetComponent<TMP_Text>().text = fileName;
-            WWW www = new WWW("file:///" + files[i]);
-            Sprite previewSprite = Sprite.Create(www.texture, new Rect(0.0f, 0.0f, www.texture.width, www.texture.height), new Vector2(0.5f, 0.5f), 100.0f);
-            Image itemImage = newItem.transform.GetChild(0).GetComponent<Image>() as Image;
-            itemImage.sprite = previewSprite;
-            Button btn = newItem.GetComponent<Button>();
-            btn.onClick.AddListener(
-                () =>
-                {
-                    string path = Application.dataPath + "/CustomFields/" + fileName;
-                    byte[] fileData = File.ReadAllBytes(path);
-                    Texture2D tex = new Texture2D(0, 0);
-                    tex.LoadImage(fileData);
-                    float localScaleY = tex.width / imgResolution;
-                    float localScaleX = tex.height / imgResolution;
-                    Field.transform.localScale = new Vector3(localScaleX, 1, localScaleY);
-                    fieldTexture = new Texture2D((int)(imgResolution * Field.transform.localScale.z), (int)(imgResolution * Field.transform.localScale.x), TextureFormat.ARGB32, true);
-                    savedTex = new Texture2D((int)(imgResolution * Field.transform.localScale.z), (int)(imgResolution * Field.transform.localScale.x), TextureFormat.ARGB32, true);
-                    Graphics.CopyTexture(tex, fieldTexture);
-                    Graphics.CopyTexture(fieldTexture, savedTex);
-                    fieldMaterial.mainTexture = fieldTexture;
-                    Destroy(exp.gameObject);
-                }
-            );
-        }
+        byte[] fileData = File.ReadAllBytes(path);
+        Texture2D tex = new Texture2D(0, 0);
+        tex.LoadImage(fileData);
+        float localScaleY = tex.width / imgResolution;
+        float localScaleX = tex.height / imgResolution;
+        Field.transform.localScale = new Vector3(localScaleX, 1, localScaleY);
+        fieldTexture = new Texture2D((int)(imgResolution * Field.transform.localScale.z), (int)(imgResolution * Field.transform.localScale.x), TextureFormat.ARGB32, true);
+        savedTex = new Texture2D((int)(imgResolution * Field.transform.localScale.z), (int)(imgResolution * Field.transform.localScale.x), TextureFormat.ARGB32, true);
+        Graphics.CopyTexture(tex, fieldTexture);
+        Graphics.CopyTexture(fieldTexture, savedTex);
+        fieldMaterial.mainTexture = fieldTexture;
     }
 
 
@@ -373,29 +351,38 @@ public class Draw : MonoBehaviour
     }
 
 
-    public void SaveField()
+    public void SaveField(TMP_InputField fileName)
     {
-		StartCoroutine(ShowLoadDialogCoroutine());
+        var data = fieldTexture.EncodeToPNG();
+        if (fileName.text == "")
+        {
+            fileName.placeholder.GetComponent<TMP_Text>().text = "Please type the file name";
+            fileName.placeholder.GetComponent<TMP_Text>().color = Color.red;
+            return;
+        }
+        fileName.placeholder.GetComponent<TMP_Text>().text = "Enter file name...";
+        fileName.placeholder.GetComponent<TMP_Text>().color = Color.white;
+        string fName = fileName.text;
+        fileName.text = "";
+        File.WriteAllBytes(Application.dataPath + "/CustomFields/" + fName + ".png", data);
     }
     
     IEnumerator ShowLoadDialogCoroutine()
     {
-        yield return FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.FilesAndFolders, true, null, null, "Load Files and Folders", "Load");
+        yield return FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.FilesAndFolders, false, Application.dataPath + "/CustomFields/", null, "Load field", "Load");
         
         if (FileBrowser.Success)
         {
-            byte[] bytes = FileBrowserHelpers.ReadBytesFromFile(FileBrowser.Result[0]);
-
-            string destinationPath = Path.Combine(Application.persistentDataPath, FileBrowserHelpers.GetFilename(FileBrowser.Result[0]));
-            FileBrowserHelpers.CopyFile(FileBrowser.Result[0], destinationPath);
-            Debug.Log(destinationPath);
+            string destinationPath = FileBrowser.Result[0];
+            LoadToPath(destinationPath);
         }
     }
 
 
     public void LoadField() {
-        string[] files = GetComponent<FileManager>().GetFiles("png");
-        ShowExplorerFields(files);
+        FileBrowser.SetFilters(true, new FileBrowser.Filter("Images", ".png"));
+        FileBrowser.SetDefaultFilter(".png");
+        StartCoroutine(ShowLoadDialogCoroutine());
     }
 
 
