@@ -11,7 +11,7 @@ public class LoadEnv : MonoBehaviour
     public GameObject cylinderPrefab;
     public GameObject objects;
     public GameObject robot;
-
+    [SerializeField] private SelectPath uiController;
 
     public Material blueColor;
     public Material redColor;
@@ -23,7 +23,6 @@ public class LoadEnv : MonoBehaviour
     private int imgResolution = 256;
     private Dictionary<string, Material> colorNames;
     private Dictionary<string, GameObject> objectNames;
-    bool start = true;
     
     void Start()
     {
@@ -46,10 +45,10 @@ public class LoadEnv : MonoBehaviour
 
     void Update()
     {
-        if (start) {
+        if (uiController.start) {
             DeserializeEnv("C:\\Users\\Anton\\Desktop\\RBSM\\Assets\\MatsJson", "test.json"); // Path to env.json
             DeserializeRobot("C:\\Users\\Anton\\Desktop\\RBSM\\Assets\\RobotsJson", "Test.json");
-            start = false;
+            uiController.start = false;
         }
     }
 
