@@ -31,10 +31,6 @@ public class RobotSerializer : MonoBehaviour
     void Start()
     {
         saveDir = Application.dataPath + "/RobotsJson/";
-        if (!Directory.Exists(saveDir))
-        {
-            Directory.CreateDirectory(saveDir);
-        }
     }
 
     void Update()
@@ -70,14 +66,7 @@ public class RobotSerializer : MonoBehaviour
             moduleParams[i] = state;
         }
         string modulesToJson = JsonHelper.ToJson(moduleParams, true);
-        if(!File.Exists(saveDir + fileName)) {
-            File.Create(saveDir + fileName);
-            StartCoroutine(SaveToDisk(saveDir + fileName, modulesToJson)); // need to wait until the OS releases the file after creation
-        }
-        else
-        {
-            File.WriteAllText(saveDir + fileName, modulesToJson);
-        }
+        File.WriteAllText(saveDir + fileName, modulesToJson);
     }
     
     public void DeserializeRobot()

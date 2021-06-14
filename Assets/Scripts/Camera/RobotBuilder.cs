@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Threading;
+using System.IO;
+
 
 public class RobotBuilder : MonoBehaviour
 {
@@ -134,6 +136,10 @@ public class RobotBuilder : MonoBehaviour
     void Start()
     {
         ResetWorkspace();
+        if (!Directory.Exists(Application.dataPath + "/RobotsJson/"));
+        {
+            Directory.CreateDirectory(Application.dataPath + "/RobotsJson/");
+        }
 
         canLift = false; // Block lifting the empty object
         speed   = 0.1f;
