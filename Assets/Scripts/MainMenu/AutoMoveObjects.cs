@@ -28,6 +28,8 @@ public class AutoMoveObjects : MonoBehaviour
 
     void Start()
     {
+        count = 0;
+
         speed = 3f;
 
         y = transform.position.y;
