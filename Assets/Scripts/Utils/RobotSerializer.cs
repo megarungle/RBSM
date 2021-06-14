@@ -5,6 +5,7 @@ using UnityEngine;
 using System.Linq;
 using System.IO;
 using TMPro;
+using SimpleFileBrowser;
 
 [System.Serializable]
 public class ModuleState
@@ -23,26 +24,57 @@ public class ModuleState
     }
 }
 
-
 public class RobotSerializer : MonoBehaviour
 {
     public GameObject Robot;
+    public GameObject FileName;
+
     private string saveDir;
+
     void Start()
     {
         saveDir = Application.dataPath + "/RobotsJson/";
     }
 
-    void Update()
+    private IEnumerator ShowLoadDialogCoroutine()
     {
-        
+        yield return FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Files, false, saveDir, null,
+            "Select robot", "Load");
+
+        if (FileBrowser.Success)
+        {
+            Debug.Log(FileBrowser.Result[0]);
+
+            string path = "Prefabs models";
+
+            string json = File.ReadAllText(FileBrowser.Result[0]);
+            ModuleState[] modulesParams;
+            modulesParams = JsonHelper.FromJson<ModuleState>(json);
+
+            foreach (Transform module in Robot.transform)
+            {
+                Destroy(module.gameObject);
+            }
+
+            for (int i = 0; i < modulesParams.Length; i++)
+            {
+                string name = modulesParams[i].name;
+                Vector3 position = modulesParams[i].position;
+                Quaternion rotation = modulesParams[i].rotation;
+                string slot = modulesParams[i].slot;
+                GameObject newModule = Instantiate(Resources.Load(path + parseResource(name)), position, rotation, Robot.transform) as GameObject;
+                if (slot != "")
+                {
+                    StartCoroutine(SetSlot(newModule, slot));
+                }
+            }
+        }
     }
 
     private IEnumerator SaveToDisk(string path, string data)
     {
         yield return new WaitForSeconds(2);
         File.WriteAllText(path, data);
-
     }
     
     private IEnumerator SetSlot(GameObject module, string slot)
@@ -53,8 +85,9 @@ public class RobotSerializer : MonoBehaviour
     
     public void SerializeRobot()
     {
-        string fileName = "Robot.json"; // TODO: need to get the name of the file from scene
+        string fileName = (FileName.GetComponent(typeof(TextMeshProUGUI)) as TextMeshProUGUI).text + ".json";
         ModuleState[] moduleParams = new ModuleState[Robot.transform.childCount];
+        
         for (int i = 0; i < Robot.transform.childCount; i++)
         {
             Transform module = Robot.transform.GetChild(i);
@@ -65,38 +98,19 @@ public class RobotSerializer : MonoBehaviour
             ModuleState state = new ModuleState(name, position, rotation, slot);
             moduleParams[i] = state;
         }
+        
         string modulesToJson = JsonHelper.ToJson(moduleParams, true);
+        
         File.WriteAllText(saveDir + fileName, modulesToJson);
     }
     
     public void DeserializeRobot()
     {
-        string fileName = "Robot.json"; // TODO: need to get the name of the file from scene
+        FileBrowser.SetFilters(true, new FileBrowser.Filter("Robots", ".json"));
+        FileBrowser.SetDefaultFilter(".json");
+        FileBrowser.AddQuickLink("RBSM", saveDir, null);
 
-        string dir = "Prefabs models";
-        string path = dir;
-        
-        string json = File.ReadAllText(saveDir + fileName);
-        ModuleState[] modulesParams;
-        modulesParams = JsonHelper.FromJson<ModuleState>(json);
-
-        foreach (Transform module in Robot.transform)
-        {
-            Destroy(module.gameObject);
-        }
-        
-        for (int i = 0; i < modulesParams.Length; i++)
-        {
-            string name = modulesParams[i].name;
-            Vector3 position = modulesParams[i].position;
-            Quaternion rotation = modulesParams[i].rotation;
-            string slot = modulesParams[i].slot;
-            GameObject newModule = Instantiate(Resources.Load(path + parseResource(name)), position, rotation, Robot.transform) as GameObject;
-            if (slot != "")
-            {
-                StartCoroutine(SetSlot(newModule, slot));
-            }
-        }
+        StartCoroutine(ShowLoadDialogCoroutine());
     }
 
     private string parseResource(string moduleName)
