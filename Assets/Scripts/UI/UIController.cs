@@ -27,6 +27,7 @@ public class UIController : MonoBehaviour
     public GameObject panelAxles;
     public GameObject panelConnectors;
     public GameObject panelWheels;
+    public GameObject panelOptions;
 
     private void HidePanels()
     {
@@ -35,6 +36,7 @@ public class UIController : MonoBehaviour
         panelAxles.SetActive(false);
         panelConnectors.SetActive(false);
         panelWheels.SetActive(false);
+        panelOptions.SetActive(false);
     }
 
     private void Start()
@@ -49,6 +51,7 @@ public class UIController : MonoBehaviour
         GameObject btnThinBalks = transform.GetChild(3).gameObject;
         GameObject btnConnectors = transform.GetChild(4).gameObject;
         GameObject btnWheels = transform.GetChild(5).gameObject;
+        GameObject btnOptions = transform.GetChild(6).gameObject;
 
         // Waiting end of animation
         yield return new WaitForSeconds(animationLen);
@@ -66,6 +69,7 @@ public class UIController : MonoBehaviour
         btnThinBalks.SetActive(IsCollapsed);
         btnConnectors.SetActive(IsCollapsed);
         btnWheels.SetActive(IsCollapsed);
+        btnOptions.SetActive(IsCollapsed);
 
         if (IsCollapsed)
         {
@@ -140,6 +144,12 @@ public class UIController : MonoBehaviour
                 {
                     HidePanels();
                     panelWheels.SetActive(true);
+                    break;
+                }
+            case "BtnOptions":
+                {
+                    HidePanels();
+                    panelOptions.SetActive(true);
                     break;
                 }
             default:
