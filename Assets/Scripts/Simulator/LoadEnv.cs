@@ -21,6 +21,7 @@ public class LoadEnv : MonoBehaviour
     private int imgResolution = 256;
     private Dictionary<string, Material> colorNames;
     private Dictionary<string, GameObject> objectNames;
+    
     void Start()
     {
         colorNames = new Dictionary<string, Material>
