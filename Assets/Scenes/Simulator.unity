@@ -1234,6 +1234,7 @@ GameObject:
   - component: {fileID: 1307240835}
   - component: {fileID: 1307240834}
   - component: {fileID: 1307240833}
+  - component: {fileID: 1307240837}
   m_Layer: 0
   m_Name: Plane
   m_TagString: Untagged
@@ -1315,6 +1316,31 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1307240837
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1307240832}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0b88f3e96e6891429cbdbc3e0c78f54, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cubePrefab: {fileID: 4790795093391942214, guid: 73523f60db7f58d4d86a60792724f67a,
+    type: 3}
+  spherePrefab: {fileID: 7138579497590837669, guid: 50b30f8a570f3f848b027cdcb3f1c7f1,
+    type: 3}
+  cylinderPrefab: {fileID: 688040453914377231, guid: 888895220e557b34e8b511b4b403edfe,
+    type: 3}
+  objects: {fileID: 1291569915}
+  blueColor: {fileID: 2100000, guid: 59797ea62ab1ab04cb691af9e1decfbf, type: 2}
+  redColor: {fileID: 2100000, guid: 8499b05ee37128d4b9e76b3c0be6fa25, type: 2}
+  blackColor: {fileID: 2100000, guid: eb0bbb31b4d8b5e448231ef2477dd913, type: 2}
+  whiteColor: {fileID: 2100000, guid: cab2e4efdbc49c84582784eb9b417b14, type: 2}
+  yellowColor: {fileID: 2100000, guid: 918b0cfeb142fcf4bbd22b4a3c8fe508, type: 2}
+  greenColor: {fileID: 2100000, guid: 866a74567ddbfc84cb40d940116e41e1, type: 2}
 --- !u!1 &1343876522
 GameObject:
   m_ObjectHideFlags: 0
