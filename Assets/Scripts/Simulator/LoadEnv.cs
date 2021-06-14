@@ -10,6 +10,8 @@ public class LoadEnv : MonoBehaviour
     public GameObject spherePrefab;
     public GameObject cylinderPrefab;
     public GameObject objects;
+    public GameObject robot;
+
 
     public Material blueColor;
     public Material redColor;
@@ -21,6 +23,7 @@ public class LoadEnv : MonoBehaviour
     private int imgResolution = 256;
     private Dictionary<string, Material> colorNames;
     private Dictionary<string, GameObject> objectNames;
+    bool start = true;
     
     void Start()
     {
@@ -39,7 +42,15 @@ public class LoadEnv : MonoBehaviour
             {"Sphere(Clone)", spherePrefab},
             {"Cylinder(Clone)", cylinderPrefab}
         };
-        DeserializeEnv("C:\\Users\\Anton\\Desktop\\RBSM\\Assets\\MatsJson", "test.json"); // Path to env.json
+    }
+
+    void Update()
+    {
+        if (start) {
+            DeserializeEnv("C:\\Users\\Anton\\Desktop\\RBSM\\Assets\\MatsJson", "test.json"); // Path to env.json
+            DeserializeRobot("C:\\Users\\Anton\\Desktop\\RBSM\\Assets\\RobotsJson", "Test.json");
+            start = false;
+        }
     }
 
 
@@ -72,5 +83,53 @@ public class LoadEnv : MonoBehaviour
         MeshRenderer renderer = gameObject.GetComponent<MeshRenderer>();
         Material fieldMaterial = renderer.material;
         fieldMaterial.mainTexture = tex;
+    }
+    
+    private string parseResource(string moduleName)
+    {
+        moduleName = moduleName.Substring(0, moduleName.Length - 7); // discarding "(Clone)"
+        if (moduleName.Contains("Liftarm"))
+        {
+            return "/Balks/" + moduleName;
+        } else if (moduleName.Contains("Pin") || moduleName == "Axle3Stub")
+        {
+            return "/Connectors/" + moduleName;
+        } else if (moduleName.Contains("NXT") || moduleName.Contains("Motor") || moduleName.Contains("Sensor"))
+        {
+            return "/FuncElems/" + moduleName;
+        } else if (moduleName.Contains("Axle"))
+        {
+            return "/Axles/" + moduleName;
+        } else if (moduleName.Contains("cross") || moduleName.Contains("hole"))
+        {
+            return "/Wheels/" + moduleName;
+        } else return "";
+    }
+    
+    private IEnumerator SetSlot(GameObject module, string slot)
+    {
+        yield return new WaitForEndOfFrame();
+        module.GetComponent<BindingFE>().slot = slot;
+    }
+
+    private void DeserializeRobot(string path, string fileName)
+    {
+        string json = File.ReadAllText(path + '/' + fileName);
+        ModuleState[] modulesParams;
+        modulesParams = JsonHelper.FromJson<ModuleState>(json);
+        
+        for (int i = 0; i < modulesParams.Length; i++)
+        {
+            string name = modulesParams[i].name;
+            Vector3 position = modulesParams[i].position;
+            Quaternion rotation = modulesParams[i].rotation;
+            string slot = modulesParams[i].slot;
+            GameObject newModule = Instantiate(Resources.Load("Prefabs models" + parseResource(name)), position, rotation, robot.transform) as GameObject;
+            newModule.transform.localPosition = position;
+            if (slot != "")
+            {
+                StartCoroutine(SetSlot(newModule, slot));
+            }
+        }
     }
 }
