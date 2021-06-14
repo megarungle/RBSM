@@ -4,9 +4,7 @@ using System.Threading;
 
 public class CameraRotation : MonoBehaviour
 {
-    public GameObject HUD;
-
-    private bool HUDVisible = true;
+    private bool FreeCamera = false;
 
     public enum RotationAxes
     {
@@ -25,9 +23,9 @@ public class CameraRotation : MonoBehaviour
 
     private float _rotationX = 0;
 
-    bool IsHUDVisible()
+    public void SetFreeCamera()
     {
-        return HUDVisible;
+        FreeCamera = true;
     }
 
     void Start()
@@ -41,14 +39,12 @@ public class CameraRotation : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (Input.GetKey(KeyCode.E))
+        if (Input.GetKeyDown(KeyCode.E))
         {
-            HUDVisible = !HUDVisible;
-            HUD.GetComponent<HUDHandler>().ChangeStatus(HUDVisible);
-            Thread.Sleep(100);
+            FreeCamera = !FreeCamera;
         }
 
-        if (!HUDVisible)
+        if (FreeCamera)
         {
             if (axes == RotationAxes.mouseX)
             {
