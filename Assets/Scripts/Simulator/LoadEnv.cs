@@ -97,7 +97,7 @@ public class LoadEnv : MonoBehaviour
                 scriptName = scriptName.Substring(0, scriptName.Length - 3);
                 robot.AddComponent(System.Type.GetType(scriptName + ",Assembly-CSharp"));
                 Rigidbody rb = robot.AddComponent(typeof(Rigidbody)) as Rigidbody;
-                rb.mass = 2000;
+                rb.mass = 200;
                 uiController.start = false;
             }
         }
@@ -121,6 +121,7 @@ public class LoadEnv : MonoBehaviour
             objectInst.transform.localPosition = position;
             objectInst.transform.localScale = s;
             objectInst.GetComponent<MeshRenderer>().material = colorNames[col];
+            objectInst.AddComponent<Rigidbody>();
         }
 
         path = Application.dataPath + "/CustomFields/" + fileName.Substring(0, fileName.Length - 4) + "png";

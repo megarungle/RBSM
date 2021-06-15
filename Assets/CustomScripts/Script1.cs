@@ -14,11 +14,23 @@ public class Script1 : MonoBehaviour
     private Transform LFWheelTransform;
     private Transform RFWheelTransform;
 
-    public float forwardSpeed = 100.0f;
-    public float backSpeed = 30.0f;
-    public float normalSpeed = 10.0f;
+    private GameObject planeObj;
+    private Texture2D plane;
+
+    private ColorSensor cs;
+
+    private Rigidbody rb;
+
+    public float forwardSpeed = 7.0f * 1.2f;
+    public float backSpeed = 10.0f * 1.2f;
+    public float normalSpeed = 2.0f * 1.2f;
 
     private Color resColor;
+    private int blockX;
+    private int blockZ;
+
+    private float maxVelocity = 0.3f;
+    private float minVelocity = -0.3f;
 
     private void MotorMotion(WheelCollider wheel, float speed, int direction)
     {
@@ -38,6 +50,59 @@ public class Script1 : MonoBehaviour
         UpdateSingleWheel(LBWheel, LBWheelTransform, rotation);
     }
 
+    private void NormalMotion()
+    {
+        LBWheel.motorTorque = normalSpeed * 1;
+        RBWheel.motorTorque = normalSpeed * 1;
+        LFWheel.motorTorque = normalSpeed * 1;
+        RFWheel.motorTorque = normalSpeed * 1;
+    }
+
+    private void LeftFrontMotion()
+    {
+        RFWheel.motorTorque = backSpeed * -1;
+        RBWheel.motorTorque = backSpeed * -1;
+        LFWheel.motorTorque = forwardSpeed * 1;
+        LBWheel.motorTorque = forwardSpeed * 1;
+    }
+
+    private void RightFrontMotion()
+    {
+        RFWheel.motorTorque = forwardSpeed * 1;
+        RBWheel.motorTorque = forwardSpeed * 1;
+        LFWheel.motorTorque = backSpeed * -1;
+        LBWheel.motorTorque = backSpeed * -1;
+    }
+
+    private void CheckVelocity()
+    {
+        if (rb.velocity.x > maxVelocity)
+        {
+            rb.velocity = new Vector3(maxVelocity, rb.velocity.y, rb.velocity.z);
+        }
+        if (rb.velocity.y > maxVelocity)
+        {
+            rb.velocity = new Vector3(rb.velocity.x, maxVelocity, rb.velocity.z);
+        }
+        if (rb.velocity.z > maxVelocity)
+        {
+            rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y, maxVelocity);
+        }
+        //////////////////////////////////////////////
+        if (rb.velocity.x < minVelocity)
+        {
+            rb.velocity = new Vector3(minVelocity, rb.velocity.y, rb.velocity.z);
+        }
+        if (rb.velocity.y < minVelocity)
+        {
+            rb.velocity = new Vector3(rb.velocity.x, minVelocity, rb.velocity.z);
+        }
+        if (rb.velocity.z < minVelocity)
+        {
+            rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y, minVelocity);
+        }
+    }
+
     void Start()
     {
         /*
@@ -49,6 +114,8 @@ public class Script1 : MonoBehaviour
         |__|_______|__|
 
         */
+
+        rb = gameObject.GetComponent<Rigidbody>();
 
         Component[] cmpnts = gameObject.transform.GetComponentsInChildren(typeof(WheelCollider));
         LBWheel = (WheelCollider)cmpnts[0];
@@ -101,18 +168,64 @@ public class Script1 : MonoBehaviour
                         break;
                 }
             }
+
+            if (gObj.name.Contains("SensorColor"))
+            {
+                GameObject tmp = gObj.transform.Find("Sensor").gameObject;
+                cs = tmp.GetComponent<ColorSensor>();
+            }
+        }
+
+        planeObj = GameObject.Find("Plane");
+        plane = planeObj.GetComponent<MeshRenderer>().material.mainTexture as Texture2D;
+        plane.filterMode = FilterMode.Point;
+        if (plane.width > plane.height)
+        {
+            float ratio = plane.width / plane.height;
+            blockX = (int)(planeObj.transform.localScale.z * 2) * (int)ratio;
+            blockZ = (int)(planeObj.transform.localScale.x * 2);
+        }
+        else
+        {
+            float ratio = plane.height / plane.width;
+            blockX = (int)(planeObj.transform.localScale.z * 2);
+            blockZ = (int)(planeObj.transform.localScale.x * 2) * (int)ratio;
         }
     }
 
     void FixedUpdate()
     {
-        if (Input.GetKeyDown(KeyCode.P))
+        //UpdateWheels(0.5f);
+
+        Color[] colors;
+        colors = plane.GetPixels((int)(cs.x * plane.width), (int)(cs.z * plane.height), blockX, blockZ);
+
+        float avgR = 0;
+        float avgG = 0;
+        float avgB = 0;
+        for (int i = 0; i < colors.Length; ++i)
         {
-            MotorMotion(LBWheel, normalSpeed, 1);
-            MotorMotion(RBWheel, normalSpeed, 1);
-            MotorMotion(LFWheel, normalSpeed, 1);
-            MotorMotion(RFWheel, normalSpeed, 1);
+            avgR += (float)colors[i][0];
+            avgG += (float)colors[i][1];
+            avgB += (float)colors[i][2];
         }
-        UpdateWheels(0.5f);
+        avgR /= (colors.Length);
+        avgG /= (colors.Length);
+        avgB /= (colors.Length);
+
+        resColor = new Color(avgR, avgB, avgG);
+
+        if ((float)resColor[0] >= 0.7f && (float)resColor[1] >= 0.7f &&
+            (float)resColor[2] >= 0.7f)
+        {
+            NormalMotion();
+        }
+        else
+        {
+            LeftFrontMotion();
+        }
+
+        CheckVelocity();
+        Debug.Log(rb.velocity);
     }
 }
