@@ -92,11 +92,11 @@ public class MMUIController : MonoBehaviour
                 }
             case "StartProgramming":
                 {
-                    StartCoroutine(ChangeScene("Simulator"));
                     break;
                 }
             case "StartSimulation":
                 {
+                    StartCoroutine(ChangeScene("Simulator"));
                     break;
                 }
             default:
