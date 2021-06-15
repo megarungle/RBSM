@@ -180,6 +180,11 @@ public class LoadEnv : MonoBehaviour
         float minZ = 0.0f;
         float maxZ = 0.0f;
 
+        int newLen = modulesParams.Length;
+
+        int whTransformCount = 1;
+        int whColliderCount = 1;
+
         for (int i = 0; i < modulesParams.Length; i++)
         {
             string name = modulesParams[i].name;
@@ -200,16 +205,28 @@ public class LoadEnv : MonoBehaviour
                 Destroy(newModule.transform.GetChild(0).gameObject.GetComponent(typeof(MeshCollider)));
                 newModule.transform.GetChild(0).gameObject.AddComponent(typeof(BoxCollider));
             }
-            else
+            else if (!name.Contains("cross") && !name.Contains("hole"))
             {
                 newModule.AddComponent(typeof(BoxCollider));
+            }
+            else
+            {
+                MeshCollider mc = newModule.AddComponent(typeof(MeshCollider)) as MeshCollider;
+                mc.convex = true;
             }
 
             if (name.Contains("cross") || name.Contains("hole"))
             {
                 GameObject wCol = Instantiate(Resources.Load("WCollider"), position, Quaternion.Euler(0, 0, 0), robot.transform) as GameObject;
                 wCol.transform.localPosition = position;
-                wCol.transform.position = new Vector3(wCol.transform.position.x, wCol.transform.position.y + 0.1f, wCol.transform.position.z);
+                wCol.transform.position = new Vector3(wCol.transform.position.x, wCol.transform.position.y + 0.01f, wCol.transform.position.z);
+                newLen++;
+
+                newModule.name = newModule.name + whTransformCount.ToString();
+                wCol.name = wCol.name + whColliderCount.ToString();
+
+                whTransformCount++;
+                whColliderCount++;
             }
 
             float pos = newModule.transform.localPosition.y - mr.bounds.size.y / 2;
@@ -229,11 +246,11 @@ public class LoadEnv : MonoBehaviour
         float avgX = Mathf.Abs(maxX - minX) / 2;
         float avgZ = Mathf.Abs(maxZ - minZ) / 2;
 
-        for (int i = 0; i < modulesParams.Length; i++)
+        for (int i = 0; i < newLen; i++)
         {
-            //GameObject module = robot.transform.GetChild(i).gameObject;
-            //module.transform.localPosition = new Vector3(module.transform.localPosition.x + avgX,
-            //    module.transform.localPosition.y, module.transform.localPosition.z /*+ avgZ*/);
+            GameObject module = robot.transform.GetChild(i).gameObject;
+            module.transform.localPosition = new Vector3(module.transform.localPosition.x + avgX,
+                module.transform.localPosition.y, module.transform.localPosition.z /*+ avgZ*/);
         }
 
         robot.transform.position = new Vector3(point.x, (minPos) * Mathf.Sign(minPos) + 0.1f, point.z);
