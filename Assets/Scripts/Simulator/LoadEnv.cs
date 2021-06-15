@@ -96,7 +96,8 @@ public class LoadEnv : MonoBehaviour
                 string scriptName = uiController.pathScript.Substring(uiController.pathScript.LastIndexOf(@"\") + 1);
                 scriptName = scriptName.Substring(0, scriptName.Length - 3);
                 robot.AddComponent(System.Type.GetType(scriptName + ",Assembly-CSharp"));
-                robot.AddComponent(typeof(Rigidbody));
+                Rigidbody rb = robot.AddComponent(typeof(Rigidbody)) as Rigidbody;
+                rb.mass = 2000;
                 uiController.start = false;
             }
         }
@@ -199,9 +200,16 @@ public class LoadEnv : MonoBehaviour
                 Destroy(newModule.transform.GetChild(0).gameObject.GetComponent(typeof(MeshCollider)));
                 newModule.transform.GetChild(0).gameObject.AddComponent(typeof(BoxCollider));
             }
-            else if (name.Contains("Motor") || name.Contains("Sensor") || name.Contains("Liftarm"))
+            else
             {
                 newModule.AddComponent(typeof(BoxCollider));
+            }
+
+            if (name.Contains("cross") || name.Contains("hole"))
+            {
+                GameObject wCol = Instantiate(Resources.Load("WCollider"), position, Quaternion.Euler(0, 0, 0), robot.transform) as GameObject;
+                wCol.transform.localPosition = position;
+                wCol.transform.position = new Vector3(wCol.transform.position.x, wCol.transform.position.y + 0.1f, wCol.transform.position.z);
             }
 
             float pos = newModule.transform.localPosition.y - mr.bounds.size.y / 2;
@@ -223,11 +231,11 @@ public class LoadEnv : MonoBehaviour
 
         for (int i = 0; i < modulesParams.Length; i++)
         {
-            GameObject module = robot.transform.GetChild(i).gameObject;
-            module.transform.localPosition = new Vector3(module.transform.localPosition.x + avgX,
-                module.transform.localPosition.y, module.transform.localPosition.z /*+ avgZ*/);
+            //GameObject module = robot.transform.GetChild(i).gameObject;
+            //module.transform.localPosition = new Vector3(module.transform.localPosition.x + avgX,
+            //    module.transform.localPosition.y, module.transform.localPosition.z /*+ avgZ*/);
         }
 
-        robot.transform.position = new Vector3(point.x, (minPos) * Mathf.Sign(minPos) + 0.15f, point.z);
+        robot.transform.position = new Vector3(point.x, (minPos) * Mathf.Sign(minPos) + 0.1f, point.z);
     }
 }
