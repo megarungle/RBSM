@@ -29,7 +29,7 @@ public class SelectPath : MonoBehaviour
         filterName.Add("BtnScript", "Scripts");
         filterName.Add("BtnEnv", "Environments");
         path.Add("BtnRobot", Application.dataPath + "/RobotsJson/");
-        path.Add("BtnScript", Application.dataPath);
+        path.Add("BtnScript", Application.dataPath + "/CustomScripts/");
         path.Add("BtnEnv", Application.dataPath + "/MatsJson/");
         desc.Add("BtnRobot", "Select robot");
         desc.Add("BtnScript", "Select script");

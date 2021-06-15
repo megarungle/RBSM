@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 
-
 public class LoadEnv : MonoBehaviour
 {
     public GameObject cubePrefab;
@@ -73,8 +72,7 @@ public class LoadEnv : MonoBehaviour
                 {
                     Debug.DrawLine(cam.transform.position, hit.point, Color.green, 0.5f);
 
-                    string robotName = uiController.pathRobot.Substring(uiController.pathRobot.LastIndexOf(@"\") + 1);
-                    DeserializeRobot(uiController.pathRobot, robotName, hit.point);
+                    DeserializeRobot(uiController.pathRobot, hit.point);
                     robotLoaded = true;
                 }
                 else
@@ -95,6 +93,10 @@ public class LoadEnv : MonoBehaviour
             }
             if (Input.GetKeyDown(KeyCode.Q))
             {
+                string scriptName = uiController.pathScript.Substring(uiController.pathScript.LastIndexOf(@"\") + 1);
+                scriptName = scriptName.Substring(0, scriptName.Length - 3);
+                robot.AddComponent(System.Type.GetType(scriptName + ",Assembly-CSharp"));
+                robot.AddComponent(typeof(Rigidbody));
                 uiController.start = false;
             }
         }
@@ -163,7 +165,7 @@ public class LoadEnv : MonoBehaviour
         module.GetComponent<BindingFE>().slot = slot;
     }
 
-    private void DeserializeRobot(string path, string fileName, Vector3 point)
+    private void DeserializeRobot(string path, Vector3 point)
     {
         robot.transform.position = new Vector3(point.x, 0, point.z);
 
@@ -191,9 +193,15 @@ public class LoadEnv : MonoBehaviour
             }
 
             MeshRenderer mr = newModule.GetComponent(typeof(MeshRenderer)) as MeshRenderer;
-            if (mr == null) // If object has empty parent
+            if (mr == null) // If object has empty parent (NXT)
             {
                 mr = newModule.transform.GetChild(0).GetComponent(typeof(MeshRenderer)) as MeshRenderer;
+                Destroy(newModule.transform.GetChild(0).gameObject.GetComponent(typeof(MeshCollider)));
+                newModule.transform.GetChild(0).gameObject.AddComponent(typeof(BoxCollider));
+            }
+            else if (name.Contains("Motor") || name.Contains("Sensor") || name.Contains("Liftarm"))
+            {
+                newModule.AddComponent(typeof(BoxCollider));
             }
 
             float pos = newModule.transform.localPosition.y - mr.bounds.size.y / 2;
