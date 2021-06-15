@@ -62,7 +62,8 @@ public class RobotSerializer : MonoBehaviour
                 Vector3 position = modulesParams[i].position;
                 Quaternion rotation = modulesParams[i].rotation;
                 string slot = modulesParams[i].slot;
-                GameObject newModule = Instantiate(Resources.Load(path + parseResource(name)), position, rotation, Robot.transform) as GameObject;
+                GameObject newModule = Instantiate(Resources.Load(path + ParseResource(name)), new Vector3(0, 0, 0), rotation, Robot.transform) as GameObject;
+                newModule.transform.localPosition = position;
                 if (slot != "")
                 {
                     StartCoroutine(SetSlot(newModule, slot));
@@ -92,7 +93,7 @@ public class RobotSerializer : MonoBehaviour
         {
             Transform module = Robot.transform.GetChild(i);
             string name = module.name;
-            Vector3 position = module.position;
+            Vector3 position = module.localPosition;
             Quaternion rotation = module.rotation;
             string slot = module.GetComponent<BindingFE>() ? module.GetComponent<BindingFE>().slot : "";
             ModuleState state = new ModuleState(name, position, rotation, slot);
@@ -113,7 +114,7 @@ public class RobotSerializer : MonoBehaviour
         StartCoroutine(ShowLoadDialogCoroutine());
     }
 
-    private string parseResource(string moduleName)
+    private string ParseResource(string moduleName)
     {
         moduleName = moduleName.Substring(0, moduleName.Length - 7); // discarding "(Clone)"
         if (moduleName.Contains("Liftarm"))
