@@ -12,6 +12,7 @@ public class BackToMainMenu : MonoBehaviour
     private IEnumerator ChangeScene()
     {
         screenFader.fadeState = ScreenFader.FadeState.In;
+        Time.timeScale = 1.0f;
 
         yield return new WaitForSeconds(2.0f);
 

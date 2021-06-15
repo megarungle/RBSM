@@ -23,6 +23,8 @@ public class CameraRotation : MonoBehaviour
 
     private float _rotationX = 0;
 
+    private bool canInputKey = true;
+
     public void SetFreeCamera()
     {
         FreeCamera = true;
@@ -39,9 +41,14 @@ public class CameraRotation : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Input.GetKey(KeyCode.E) && canInputKey)
         {
             FreeCamera = !FreeCamera;
+            canInputKey = false;
+        }
+        if (Input.GetKeyUp(KeyCode.E))
+        {
+            canInputKey = true;
         }
 
         if (FreeCamera)

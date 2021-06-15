@@ -21,9 +21,9 @@ public class Script1 : MonoBehaviour
 
     private Rigidbody rb;
 
-    public float forwardSpeed = 7.0f * 1.2f;
-    public float backSpeed = 10.0f * 1.2f;
-    public float normalSpeed = 2.0f * 1.2f;
+    public float forwardSpeed = 7.0f * 2.7f;
+    public float backSpeed = 10.0f * 2.7f;
+    public float normalSpeed = 2.0f * 1.7f;
 
     private Color resColor;
     private int blockX;
@@ -37,17 +37,21 @@ public class Script1 : MonoBehaviour
         wheel.motorTorque = speed * direction;
     }
 
-    private void UpdateSingleWheel(WheelCollider wheelCollider, Transform wheelTransform, float rotation)
+    private void UpdateSingleWheel(WheelCollider wheelCollider, Transform wheelTransform)
     {
-        wheelTransform.Rotate(rotation, 0.0f, 0.0f, Space.World);
+        Vector3 pos;
+        Quaternion rot;
+        wheelCollider.GetWorldPose(out pos, out rot);
+        wheelTransform.rotation = rot;
+        //wheelTransform.position = pos;
     }
 
-    private void UpdateWheels(float rotation)
+    private void UpdateWheels()
     {
-        UpdateSingleWheel(LFWheel, LFWheelTransform, rotation);
-        UpdateSingleWheel(RFWheel, RFWheelTransform, rotation);
-        UpdateSingleWheel(RBWheel, RBWheelTransform, rotation);
-        UpdateSingleWheel(LBWheel, LBWheelTransform, rotation);
+        UpdateSingleWheel(LFWheel, LFWheelTransform);
+        UpdateSingleWheel(RFWheel, RFWheelTransform);
+        UpdateSingleWheel(RBWheel, RBWheelTransform);
+        UpdateSingleWheel(LBWheel, LBWheelTransform);
     }
 
     private void NormalMotion()
@@ -105,6 +109,7 @@ public class Script1 : MonoBehaviour
 
     void Start()
     {
+
         /*
          __ _______ __
         |W3| FRONT |W4|
@@ -226,6 +231,6 @@ public class Script1 : MonoBehaviour
         }
 
         CheckVelocity();
-        Debug.Log(rb.velocity);
+        UpdateWheels();
     }
 }

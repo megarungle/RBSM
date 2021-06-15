@@ -96,6 +96,10 @@ public class LoadEnv : MonoBehaviour
                 string scriptName = uiController.pathScript.Substring(uiController.pathScript.LastIndexOf(@"\") + 1);
                 scriptName = scriptName.Substring(0, scriptName.Length - 3);
                 robot.AddComponent(System.Type.GetType(scriptName + ",Assembly-CSharp"));
+                Time.timeScale = 7.0f;
+                cam.GetComponent<CameraRotation>().sensHor /= Time.timeScale;
+                cam.GetComponent<CameraRotation>().sensVert /= Time.timeScale;
+                cam.GetComponent<CameraMove>().speed /= Time.timeScale;
                 Rigidbody rb = robot.AddComponent(typeof(Rigidbody)) as Rigidbody;
                 rb.mass = 200;
                 uiController.start = false;
@@ -192,7 +196,20 @@ public class LoadEnv : MonoBehaviour
             Vector3 position = modulesParams[i].position;
             Quaternion rotation = modulesParams[i].rotation;
             string slot = modulesParams[i].slot;
-            GameObject newModule = Instantiate(Resources.Load("Prefabs models" + ParseResource(name)), position, rotation, robot.transform) as GameObject;
+            GameObject newModule = Instantiate(Resources.Load("Prefabs models" + ParseResource(name)), position, rotation) as GameObject;
+
+            if (!name.Contains("cross") && !name.Contains("hole"))
+            {
+                newModule.transform.SetParent(robot.transform);
+            }
+            else
+            {
+                GameObject empty = Instantiate(Resources.Load("Empty"), position, Quaternion.Euler(0, 0, 0)) as GameObject;
+                empty.transform.SetParent(robot.transform);
+                newModule.transform.SetParent(empty.transform);
+                empty.name = newModule.name;
+                newModule = empty;
+            }
             newModule.transform.localPosition = position;
             if (slot != "")
             {
@@ -200,20 +217,25 @@ public class LoadEnv : MonoBehaviour
             }
 
             MeshRenderer mr = newModule.GetComponent(typeof(MeshRenderer)) as MeshRenderer;
-            if (mr == null) // If object has empty parent (NXT)
+            if (mr == null) // If object has empty parent
             {
-                mr = newModule.transform.GetChild(0).GetComponent(typeof(MeshRenderer)) as MeshRenderer;
-                Destroy(newModule.transform.GetChild(0).gameObject.GetComponent(typeof(MeshCollider)));
-                newModule.transform.GetChild(0).gameObject.AddComponent(typeof(BoxCollider));
-            }
-            else if (!name.Contains("cross") && !name.Contains("hole"))
-            {
-                newModule.AddComponent(typeof(BoxCollider));
+                if (!name.Contains("cross") && !name.Contains("hole"))
+                {
+                    mr = newModule.transform.GetChild(0).GetComponent(typeof(MeshRenderer)) as MeshRenderer;
+                    Destroy(newModule.transform.GetChild(0).gameObject.GetComponent(typeof(MeshCollider)));
+                    newModule.transform.GetChild(0).gameObject.AddComponent(typeof(BoxCollider));
+                    mr = newModule.transform.GetChild(0).GetComponent(typeof(MeshRenderer)) as MeshRenderer;
+                }
+                else
+                {
+                    MeshCollider mc = newModule.transform.GetChild(0).gameObject.AddComponent(typeof(MeshCollider)) as MeshCollider;
+                    mc.convex = true;
+                    mr = newModule.transform.GetChild(0).GetComponent(typeof(MeshRenderer)) as MeshRenderer;
+                }
             }
             else
             {
-                MeshCollider mc = newModule.AddComponent(typeof(MeshCollider)) as MeshCollider;
-                mc.convex = true;
+                newModule.AddComponent(typeof(BoxCollider));
             }
 
             if (name.Contains("cross") || name.Contains("hole"))
