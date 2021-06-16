@@ -96,7 +96,7 @@ public class LoadEnv : MonoBehaviour
                 string scriptName = uiController.pathScript.Substring(uiController.pathScript.LastIndexOf(@"\") + 1);
                 scriptName = scriptName.Substring(0, scriptName.Length - 3);
                 robot.AddComponent(System.Type.GetType(scriptName + ",Assembly-CSharp"));
-                Time.timeScale = 7.0f;
+                Time.timeScale = 20.0f;
                 cam.GetComponent<CameraRotation>().sensHor /= Time.timeScale;
                 cam.GetComponent<CameraRotation>().sensVert /= Time.timeScale;
                 cam.GetComponent<CameraMove>().speed /= Time.timeScale;
@@ -221,9 +221,11 @@ public class LoadEnv : MonoBehaviour
             {
                 if (!name.Contains("cross") && !name.Contains("hole"))
                 {
+                    /*
                     mr = newModule.transform.GetChild(0).GetComponent(typeof(MeshRenderer)) as MeshRenderer;
                     Destroy(newModule.transform.GetChild(0).gameObject.GetComponent(typeof(MeshCollider)));
                     newModule.transform.GetChild(0).gameObject.AddComponent(typeof(BoxCollider));
+                    */
                     mr = newModule.transform.GetChild(0).GetComponent(typeof(MeshRenderer)) as MeshRenderer;
                 }
                 else

@@ -21,8 +21,8 @@ public class Script1 : MonoBehaviour
 
     private Rigidbody rb;
 
-    public float forwardSpeed = 7.0f * 2.7f;
-    public float backSpeed = 10.0f * 2.7f;
+    public float forwardSpeed = 7.0f * 1.7f;
+    public float backSpeed = 10.0f * 1.7f;
     public float normalSpeed = 2.0f * 1.7f;
 
     private Color resColor;
