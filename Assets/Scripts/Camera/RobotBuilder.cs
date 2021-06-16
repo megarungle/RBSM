@@ -423,6 +423,11 @@ public class RobotBuilder : MonoBehaviour
                             {
                                 layerMask = 1 << 10; // Pins and axles layer
 
+                                if (objectName == "Liftarm90Degr")
+                                {
+                                    layerMask |= 1 << 9;
+                                }
+
                                 if (Physics.Raycast(cam.transform.position, direction, out hit, 100.0f, layerMask))
                                 {
                                     if (EventSystem.current.IsPointerOverGameObject()) // Ignore button click if mouse is on UI
